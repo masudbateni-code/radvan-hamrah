@@ -74,5 +74,3 @@ Canonical business IDs (kept stable for compatibility):
 
 Existing browser stores synchronize their business directory on next load while retaining customer balances and transactions. Existing SQLite business rows are updated by ID at server startup; the two new businesses are inserted. Existing SQLite customer records are not overwritten.
 
-
-Demo data note: the example customer name is **آرمان فرهمند** (not آرمان رضایی).
