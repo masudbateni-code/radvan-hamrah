@@ -1,0 +1,2406 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>رادوان همراه | پنل مدیریت</title>
+  <style>
+    :root {
+      --bg-primary: #0c1017;
+      --bg-secondary: #141b26;
+      --bg-card: #1a2332;
+      --bg-sidebar: #0f1520;
+      --bg-input: #121a24;
+      --bg-hover: #243044;
+      --border: #2a3548;
+      --border-light: #36425a;
+      --text: #e8edf5;
+      --text-secondary: #9aa8bc;
+      --text-muted: #6b7a90;
+      --gold: #d4a84b;
+      --gold-hover: #e0b85c;
+      --gold-dim: rgba(212, 168, 75, 0.12);
+      --success: #3dbf7a;
+      --success-bg: rgba(61, 191, 122, 0.12);
+      --error: #e55c5c;
+      --error-bg: rgba(229, 92, 92, 0.12);
+      --warning: #e09a3e;
+      --info: #4a9eff;
+      --radius: 8px;
+      --radius-sm: 6px;
+      --shadow: 0 4px 16px rgba(0,0,0,0.35);
+      --sidebar-w: 240px;
+      --header-h: 56px;
+      --font: "Tahoma", "Segoe UI", Arial, sans-serif;
+      --space-xs: 4px;
+      --space-sm: 8px;
+      --space-md: 16px;
+      --space-lg: 24px;
+      --space-xl: 32px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg-primary);
+      color: var(--text);
+      line-height: 1.55;
+      min-height: 100vh;
+      direction: rtl;
+      overflow-x: hidden;
+    }
+
+    /* ===== Layout ===== */
+    .app {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* ===== Sidebar ===== */
+    .sidebar {
+      width: var(--sidebar-w);
+      background: var(--bg-sidebar);
+      border-left: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 100;
+      transition: transform 0.25s;
+    }
+
+    .sidebar-brand {
+      height: var(--header-h);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 0 var(--space-md);
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+
+    .sidebar-brand .logo {
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: var(--gold);
+      letter-spacing: 0.5px;
+    }
+
+    .sidebar-brand .sub {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .sidebar-nav {
+      flex: 1;
+      overflow-y: auto;
+      padding: var(--space-sm) 0;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 11px var(--space-md);
+      color: var(--text-secondary);
+      cursor: pointer;
+      border: none;
+      background: transparent;
+      width: 100%;
+      font-family: inherit;
+      font-size: 0.9rem;
+      text-align: right;
+      transition: background 0.15s, color 0.15s;
+      border-right: 3px solid transparent;
+    }
+
+    .nav-item:hover {
+      background: var(--bg-hover);
+      color: var(--text);
+    }
+
+    .nav-item.active {
+      background: var(--gold-dim);
+      color: var(--gold);
+      border-right-color: var(--gold);
+      font-weight: 600;
+    }
+
+    .nav-item .icon {
+      width: 20px;
+      text-align: center;
+      font-size: 1rem;
+      opacity: 0.85;
+    }
+
+    /* ===== Main ===== */
+    .main {
+      flex: 1;
+      margin-right: var(--sidebar-w);
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    .header {
+      height: var(--header-h);
+      background: var(--bg-secondary);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 var(--space-lg);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: var(--space-md);
+    }
+
+    .header-title {
+      font-size: 1.05rem;
+      font-weight: 600;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: var(--space-md);
+    }
+
+    .date-range {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+    }
+
+    .date-range select {
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 5px 10px;
+      border-radius: var(--radius-sm);
+      font-family: inherit;
+      font-size: 0.85rem;
+    }
+
+    .notif-btn, .menu-toggle {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
+      width: 36px;
+      height: 36px;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .notif-btn:hover, .menu-toggle:hover {
+      border-color: var(--gold);
+      color: var(--gold);
+    }
+
+    .admin-info {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.85rem;
+    }
+
+    .admin-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--gold-dim);
+      color: var(--gold);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.85rem;
+    }
+
+    .content {
+      flex: 1;
+      padding: var(--space-lg);
+      overflow-y: auto;
+    }
+
+    .page { display: none; }
+    .page.active { display: block; }
+
+    .page-desc {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+      margin-bottom: var(--space-lg);
+    }
+
+    /* ===== Cards & Grid ===== */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: var(--space-md);
+      margin-bottom: var(--space-lg);
+    }
+
+    .stat-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: var(--space-md);
+    }
+
+    .stat-card .label {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    .stat-card .value {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .stat-card .value.gold { color: var(--gold); }
+
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: var(--space-md);
+      margin-bottom: var(--space-md);
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: var(--space-md);
+      flex-wrap: wrap;
+      gap: var(--space-sm);
+    }
+
+    .card-title {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--gold);
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-md);
+    }
+
+    @media (max-width: 900px) {
+      .grid-2 { grid-template-columns: 1fr; }
+    }
+
+    /* ===== Tables ===== */
+    .table-wrap {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.88rem;
+    }
+
+    th, td {
+      padding: 10px 12px;
+      text-align: right;
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+    }
+
+    th {
+      color: var(--text-muted);
+      font-weight: 600;
+      font-size: 0.8rem;
+      background: var(--bg-secondary);
+    }
+
+    tr:hover td { background: var(--bg-hover); }
+
+    /* ===== Badges ===== */
+    .badge {
+      display: inline-block;
+      padding: 2px 10px;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      font-weight: 500;
+    }
+
+    .badge-success { background: var(--success-bg); color: var(--success); }
+    .badge-error { background: var(--error-bg); color: var(--error); }
+    .badge-warning { background: rgba(224,154,62,0.15); color: var(--warning); }
+    .badge-info { background: rgba(74,158,255,0.15); color: var(--info); }
+    .badge-muted { background: rgba(107,122,144,0.2); color: var(--text-muted); }
+    .badge-gold { background: var(--gold-dim); color: var(--gold); }
+
+    /* ===== Buttons ===== */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 8px 16px;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-family: inherit;
+      font-size: 0.88rem;
+      cursor: pointer;
+      transition: background 0.15s, opacity 0.15s;
+      white-space: nowrap;
+    }
+
+    .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+    .btn-primary {
+      background: var(--gold);
+      color: #1a1a1a;
+      font-weight: 600;
+    }
+    .btn-primary:hover:not(:disabled) { background: var(--gold-hover); }
+
+    .btn-secondary {
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      color: var(--text);
+    }
+    .btn-secondary:hover:not(:disabled) { border-color: var(--gold); color: var(--gold); }
+
+    .btn-danger {
+      background: var(--error-bg);
+      border: 1px solid var(--error);
+      color: var(--error);
+    }
+    .btn-danger:hover:not(:disabled) { background: var(--error); color: #fff; }
+
+    .btn-sm { padding: 5px 10px; font-size: 0.8rem; }
+    .btn-icon { width: 32px; height: 32px; padding: 0; }
+
+    .actions-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-sm);
+      margin-bottom: var(--space-md);
+    }
+
+    /* ===== Forms ===== */
+    .form-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: var(--space-md);
+      margin-bottom: var(--space-md);
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .form-group label {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 9px 12px;
+      border-radius: var(--radius-sm);
+      font-family: inherit;
+      font-size: 0.9rem;
+      width: 100%;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: var(--gold);
+    }
+
+    .form-group textarea { resize: vertical; min-height: 70px; }
+
+    .form-group .hint {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    /* ===== Filters ===== */
+    .filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-sm);
+      margin-bottom: var(--space-md);
+      align-items: flex-end;
+    }
+
+    .filters .form-group { min-width: 140px; }
+
+    /* ===== Charts (simple CSS/SVG) ===== */
+    .bar-chart {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .bar-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .bar-label {
+      width: 110px;
+      font-size: 0.82rem;
+      color: var(--text-secondary);
+      flex-shrink: 0;
+      text-align: left;
+      direction: ltr;
+    }
+
+    .bar-track {
+      flex: 1;
+      height: 22px;
+      background: var(--bg-input);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--gold), #c4923a);
+      border-radius: 4px;
+      min-width: 2px;
+      transition: width 0.4s;
+    }
+
+    .bar-value {
+      width: 60px;
+      font-size: 0.82rem;
+      color: var(--text);
+      text-align: left;
+      direction: ltr;
+    }
+
+    .line-chart-wrap {
+      height: 160px;
+      position: relative;
+    }
+
+    .line-chart-wrap svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    /* ===== Activity list ===== */
+    .activity-list {
+      list-style: none;
+    }
+
+    .activity-item {
+      display: flex;
+      gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.88rem;
+    }
+
+    .activity-item:last-child { border-bottom: none; }
+
+    .activity-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--gold);
+      margin-top: 6px;
+      flex-shrink: 0;
+    }
+
+    .activity-time {
+      color: var(--text-muted);
+      font-size: 0.78rem;
+      margin-top: 2px;
+    }
+
+    /* ===== League levels ===== */
+    .league-levels {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .league-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 12px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+    }
+
+    .league-color {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .league-info { flex: 1; }
+
+    .league-name { font-weight: 600; font-size: 0.9rem; }
+    .league-range { font-size: 0.8rem; color: var(--text-muted); }
+
+    /* ===== Permissions matrix ===== */
+    .perm-matrix td, .perm-matrix th {
+      text-align: center;
+      white-space: nowrap;
+    }
+    .perm-matrix td:first-child, .perm-matrix th:first-child {
+      text-align: right;
+    }
+    .perm-yes { color: var(--success); }
+    .perm-no { color: var(--text-muted); }
+    .perm-limited { color: var(--warning); }
+
+    /* ===== Modal ===== */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.65);
+      z-index: 200;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: var(--space-md);
+    }
+
+    .modal-overlay.open { display: flex; }
+
+    .modal {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      width: 100%;
+      max-width: 560px;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: var(--shadow);
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: var(--space-md) var(--space-lg);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .modal-title { font-size: 1.05rem; font-weight: 600; color: var(--gold); }
+
+    .modal-close {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 1.3rem;
+      cursor: pointer;
+      line-height: 1;
+    }
+    .modal-close:hover { color: var(--text); }
+
+    .modal-body { padding: var(--space-lg); }
+
+    .modal-footer {
+      display: flex;
+      justify-content: flex-start;
+      gap: var(--space-sm);
+      padding: var(--space-md) var(--space-lg);
+      border-top: 1px solid var(--border);
+    }
+
+    /* ===== Toast / Messages ===== */
+    .toast-container {
+      position: fixed;
+      bottom: 20px;
+      left: 20px;
+      z-index: 300;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .toast {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 12px 18px;
+      font-size: 0.88rem;
+      box-shadow: var(--shadow);
+      animation: slideIn 0.25s ease;
+      max-width: 360px;
+    }
+
+    .toast.success { border-color: var(--success); color: var(--success); }
+    .toast.error { border-color: var(--error); color: var(--error); }
+    .toast.info { border-color: var(--gold); color: var(--gold); }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ===== Empty state ===== */
+    .empty {
+      text-align: center;
+      padding: var(--space-xl);
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+
+    /* ===== Detail panel ===== */
+    .detail-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: var(--space-md);
+      margin-bottom: var(--space-md);
+    }
+
+    .detail-item .dl { font-size: 0.78rem; color: var(--text-muted); }
+    .detail-item .dv { font-size: 0.95rem; font-weight: 500; }
+
+    /* ===== Responsive ===== */
+    .menu-toggle { display: none; }
+
+    @media (max-width: 768px) {
+      .sidebar {
+        transform: translateX(100%);
+      }
+      .sidebar.open { transform: translateX(0); }
+      .main { margin-right: 0; }
+      .menu-toggle { display: flex; }
+      .content { padding: var(--space-md); }
+      .header { padding: 0 var(--space-md); }
+      .admin-info .admin-name { display: none; }
+    }
+
+    /* Overlay for mobile sidebar */
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 99;
+    }
+    .sidebar-overlay.show { display: block; }
+  </style>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet">
+
+<style id="hamrah-vazirmatn-override">
+  html, body, body * { font-family: "Vazirmatn", Tahoma, "Segoe UI", Arial, sans-serif !important; }
+</style>
+</head>
+<body>
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+  <div class="app">
+    <!-- ===== Sidebar ===== -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-brand">
+        <span class="logo">RADVAN HAMRAH</span>
+        <span class="sub">پنل مدیریت</span>
+      </div>
+      <nav class="sidebar-nav">
+        <button class="nav-item active" data-page="overview" onclick="navigate('overview')">
+          <span class="icon">▣</span> نمای کلی
+        </button>
+        <button class="nav-item" data-page="businesses" onclick="navigate('businesses')">
+          <span class="icon">🏪</span> کسب‌وکارها
+        </button>
+        <button class="nav-item" data-page="rules" onclick="navigate('rules')">
+          <span class="icon">⚙</span> قوانین امتیازدهی
+        </button>
+        <button class="nav-item" data-page="leagues" onclick="navigate('leagues')">
+          <span class="icon">◆</span> لیگ‌ها و سطوح
+        </button>
+        <button class="nav-item" data-page="rewards" onclick="navigate('rewards')">
+          <span class="icon">🎁</span> پاداش‌ها و پیشنهادها
+        </button>
+        <button class="nav-item" data-page="customers" onclick="navigate('customers')">
+          <span class="icon">👤</span> مشتریان
+        </button>
+        <button class="nav-item" data-page="employees" onclick="navigate('employees')">
+          <span class="icon">👥</span> کارکنان و دسترسی‌ها
+        </button>
+        <button class="nav-item" data-page="transactions" onclick="navigate('transactions')">
+          <span class="icon">⇄</span> تراکنش‌ها
+        </button>
+        <button class="nav-item" data-page="reports" onclick="navigate('reports')">
+          <span class="icon">📊</span> گزارش‌ها
+        </button>
+        <button class="nav-item" data-page="settings" onclick="navigate('settings')">
+          <span class="icon">☰</span> تنظیمات سیستم
+        </button>
+      </nav>
+    </aside>
+
+    <!-- ===== Main ===== -->
+    <div class="main">
+      <header class="header">
+        <div class="header-right">
+          <button class="menu-toggle" onclick="toggleSidebar()" title="منو">☰</button>
+          <span class="header-title" id="pageTitle">نمای کلی</span>
+        </div>
+        <div class="header-left">
+          <div class="date-range">
+            <span>بازه:</span>
+            <select id="globalDateRange" onchange="onDateRangeChange()">
+              <option value="7">۷ روز اخیر</option>
+              <option value="30" selected>۳۰ روز اخیر</option>
+              <option value="90">۹۰ روز اخیر</option>
+              <option value="365">یک سال اخیر</option>
+            </select>
+          </div>
+          <button class="notif-btn" onclick="showToast('اعلان جدیدی وجود ندارد.', 'info')" title="اعلان‌ها">🔔</button>
+          <div class="admin-info">
+            <div class="admin-avatar">ا</div>
+            <span class="admin-name">کوروش مهرگان <span style="color:var(--text-muted)">(مدیر کل)</span></span>
+          </div>
+        </div>
+      </header>
+
+      <div class="content">
+        <!-- ==================== PAGE: OVERVIEW ==================== -->
+        <div class="page active" id="page-overview">
+          <p class="page-desc">خلاصه وضعیت پلتفرم رادوان همراه بر اساس داده‌های نمونه.</p>
+          <div class="stats-grid" id="overviewStats"></div>
+
+          <div class="grid-2">
+            <div class="card">
+              <div class="card-header"><span class="card-title">مقایسه عملکرد کسب‌وکارها</span></div>
+              <div class="bar-chart" id="bizPerfChart"></div>
+            </div>
+            <div class="card">
+              <div class="card-header"><span class="card-title">امتیاز صادرشده در برابر مصرف‌شده</span></div>
+              <div class="bar-chart" id="pointsChart"></div>
+            </div>
+          </div>
+
+          <div class="grid-2" style="margin-top:var(--space-md)">
+            <div class="card">
+              <div class="card-header"><span class="card-title">رشد مشتریان (۶ ماه اخیر)</span></div>
+              <div class="line-chart-wrap" id="growthChart"></div>
+            </div>
+            <div class="card">
+              <div class="card-header"><span class="card-title">فعالیت‌های اخیر</span></div>
+              <ul class="activity-list" id="recentActivity"></ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- ==================== PAGE: BUSINESSES ==================== -->
+        <div class="page" id="page-businesses">
+          <p class="page-desc">مدیریت کسب‌وکارهای عضو پلتفرم. افزودن، ویرایش و فعال/غیرفعال‌سازی.</p>
+          <div class="actions-row">
+            <button class="btn btn-primary" onclick="openBusinessModal()">+ افزودن کسب‌وکار</button>
+          </div>
+          <div class="card">
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>نام</th>
+                    <th>دسته‌بندی</th>
+                    <th>وضعیت</th>
+                    <th>مشتریان</th>
+                    <th>تراکنش‌ها</th>
+                    <th>امتیاز صادره</th>
+                    <th>امتیاز مصرفی</th>
+                    <th>عملیات</th>
+                  </tr>
+                </thead>
+                <tbody id="businessesTable"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ==================== PAGE: RULES ==================== -->
+        <div class="page" id="page-rules">
+          <p class="page-desc">تعریف و مدیریت قوانین محاسبه امتیاز برای هر کسب‌وکار.</p>
+          <div class="actions-row">
+            <button class="btn btn-primary" onclick="openRuleModal()">+ افزودن قانون</button>
+          </div>
+          <div class="card">
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>نام قانون</th>
+                    <th>کسب‌وکار</th>
+                    <th>روش محاسبه</th>
+                    <th>مقدار</th>
+                    <th>حداقل خرید</th>
+                    <th>بازه</th>
+                    <th>وضعیت</th>
+                    <th>عملیات</th>
+                  </tr>
+                </thead>
+                <tbody id="rulesTable"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ==================== PAGE: LEAGUES ==================== -->
+        <div class="page" id="page-leagues">
+          <p class="page-desc">سطوح عضویت (لیگ‌ها) برای هر کسب‌وکار به‌صورت مستقل قابل تنظیم هستند.</p>
+          <div class="filters">
+            <div class="form-group">
+              <label>انتخاب کسب‌وکار</label>
+              <select id="leagueBizSelect" onchange="renderLeagues()"></select>
+            </div>
+            <button class="btn btn-primary" onclick="openLeagueModal()">+ افزودن سطح</button>
+          </div>
+          <div class="card">
+            <div class="card-header"><span class="card-title" id="leagueBizTitle">سطوح عضویت</span></div>
+            <div class="league-levels" id="leagueLevels"></div>
+          </div>
+        </div>
+
+        <!-- ==================== PAGE: REWARDS ==================== -->
+        <div class="page" id="page-rewards">
+          <p class="page-desc">مدیریت پاداش‌های قابل مصرف و پیشنهادهای بین‌کسب‌وکاری.</p>
+          <div class="actions-row">
+            <button class="btn btn-primary" onclick="openRewardModal()">+ افزودن پاداش</button>
+            <button class="btn btn-secondary" onclick="openOfferModal()">+ پیشنهاد بین‌کسب‌وکاری</button>
+          </div>
+          <div class="card">
+            <div class="card-header"><span class="card-title">پاداش‌ها</span></div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>نام</th>
+                    <th>هزینه (امتیاز)</th>
+                    <th>کسب‌وکارها</th>
+                    <th>موجودی</th>
+                    <th>بازه</th>
+                    <th>وضعیت</th>
+                    <th>عملیات</th>
+                  </tr>
+                </thead>
+                <tbody id="rewardsTable"></tbody>
+              </table>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header"><span class="card-title">پیشنهادهای بین‌کسب‌وکاری</span></div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>توضیح</th>
+                    <th>منبع</th>
+                    <th>لیگ واجد شرایط</th>
+                    <th>مقصد</th>
+                    <th>بازه</th>
+                    <th>حداکثر</th>
+                    <th>وضعیت</th>
+                    <th>عملیات</th>
+                  </tr>
+                </thead>
+                <tbody id="offersTable"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ==================== PAGE: CUSTOMERS ==================== -->
+        <div class="page" id="page-customers">
+          <p class="page-desc">جستجو، فیلتر و مشاهده پروفایل مشتریان.</p>
+          <div class="filters">
+            <div class="form-group" style="min-width:200px">
+              <label>جستجو (نام / موبایل / شناسه)</label>
+              <input type="text" id="custSearch" placeholder="جستجو..." oninput="renderCustomers()">
+            </div>
+            <div class="form-group">
+              <label>کسب‌وکار</label>
+              <select id="custBizFilter" onchange="renderCustomers()">
+                <option value="">همه</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>وضعیت</label>
+              <select id="custStatusFilter" onchange="renderCustomers()">
+                <option value="">همه</option>
+                <option value="active">فعال</option>
+                <option value="inactive">غیرفعال</option>
+              </select>
+            </div>
+            <button class="btn btn-primary" onclick="openCustomerModal()">+ افزودن مشتری</button>
+          </div>
+          <div class="card">
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>نام</th>
+                    <th>موبایل</th>
+                    <th>شناسه عضویت</th>
+                    <th>تاریخ ثبت</th>
+                    <th>وضعیت</th>
+                    <th>امتیاز (نمونه)</th>
+                    <th>عملیات</th>
+                  </tr>
+                </thead>
+                <tbody id="customersTable"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ==================== PAGE: EMPLOYEES ==================== -->
+        <div class="page" id="page-employees">
+          <p class="page-desc">مدیریت کارکنان و نقش‌های دسترسی (نمایشی).</p>
+          <div class="actions-row">
+            <button class="btn btn-primary" onclick="openEmployeeModal()">+ افزودن کارمند</button>
+          </div>
+          <div class="card">
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>نام</th>
+                    <th>موبایل</th>
+                    <th>کسب‌وکار</th>
+                    <th>شعبه</th>
+                    <th>نقش</th>
+                    <th>وضعیت</th>
+                    <th>عملیات</th>
+                  </tr>
+                </thead>
+                <tbody id="employeesTable"></tbody>
+              </table>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header"><span class="card-title">ماتریس دسترسی‌ها (نمایشی)</span></div>
+            <div class="table-wrap">
+              <table class="perm-matrix">
+                <thead>
+                  <tr>
+                    <th>دسترسی</th>
+                    <th>مدیر کل</th>
+                    <th>مدیر کسب‌وکار</th>
+                    <th>سرپرست شعبه</th>
+                    <th>صندوق‌دار</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr><td>مشاهده گزارش‌ها</td><td class="perm-yes">بله</td><td class="perm-limited">محدود</td><td class="perm-limited">محدود</td><td class="perm-no">خیر</td></tr>
+                  <tr><td>ویرایش قوانین امتیاز</td><td class="perm-yes">بله</td><td class="perm-no">خیر</td><td class="perm-no">خیر</td><td class="perm-no">خیر</td></tr>
+                  <tr><td>ثبت خرید</td><td class="perm-yes">بله</td><td class="perm-yes">بله</td><td class="perm-yes">بله</td><td class="perm-yes">بله</td></tr>
+                  <tr><td>مصرف پاداش</td><td class="perm-yes">بله</td><td class="perm-yes">بله</td><td class="perm-yes">بله</td><td class="perm-yes">بله</td></tr>
+                  <tr><td>مدیریت کارکنان</td><td class="perm-yes">بله</td><td class="perm-limited">محدود</td><td class="perm-no">خیر</td><td class="perm-no">خیر</td></tr>
+                  <tr><td>مدیریت کسب‌وکارها</td><td class="perm-yes">بله</td><td class="perm-no">خیر</td><td class="perm-no">خیر</td><td class="perm-no">خیر</td></tr>
+                  <tr><td>تنظیمات سیستم</td><td class="perm-yes">بله</td><td class="perm-no">خیر</td><td class="perm-no">خیر</td><td class="perm-no">خیر</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <p style="font-size:0.8rem;color:var(--text-muted);margin-top:10px">این ماتریس صرفاً نمایشی است و امنیت واقعی ایجاد نمی‌کند.</p>
+          </div>
+        </div>
+
+        <!-- ==================== PAGE: TRANSACTIONS ==================== -->
+        <div class="page" id="page-transactions">
+          <p class="page-desc">تاریخچه تراکنش‌های خرید و مصرف امتیاز.</p>
+          <div class="filters">
+            <div class="form-group">
+              <label>کسب‌وکار</label>
+              <select id="txBizFilter" onchange="renderTransactions()">
+                <option value="">همه</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>نوع</label>
+              <select id="txTypeFilter" onchange="renderTransactions()">
+                <option value="">همه</option>
+                <option value="purchase">خرید</option>
+                <option value="redemption">مصرف پاداش</option>
+                <option value="adjustment">تعدیل</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>وضعیت</label>
+              <select id="txStatusFilter" onchange="renderTransactions()">
+                <option value="">همه</option>
+                <option value="success">موفق</option>
+                <option value="cancelled">لغو شده</option>
+                <option value="pending">در انتظار</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>جستجوی مشتری</label>
+              <input type="text" id="txCustFilter" placeholder="نام مشتری..." oninput="renderTransactions()">
+            </div>
+          </div>
+          <div class="card">
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>شناسه</th>
+                    <th>مشتری</th>
+                    <th>کسب‌وکار</th>
+                    <th>نوع</th>
+                    <th>مبلغ</th>
+                    <th>امتیاز</th>
+                    <th>کارمند</th>
+                    <th>زمان</th>
+                    <th>وضعیت</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody id="transactionsTable"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ==================== PAGE: REPORTS ==================== -->
+        <div class="page" id="page-reports">
+          <p class="page-desc">گزارش‌های خلاصه. فیلتر بر اساس کسب‌وکار و بازه زمانی (نمونه).</p>
+          <div class="filters">
+            <div class="form-group">
+              <label>کسب‌وکار</label>
+              <select id="reportBizFilter" onchange="renderReports()">
+                <option value="">همه کسب‌وکارها</option>
+              </select>
+            </div>
+            <button class="btn btn-secondary" onclick="exportReportCSV()">خروجی CSV</button>
+          </div>
+          <div class="stats-grid" id="reportStats"></div>
+          <div class="grid-2">
+            <div class="card">
+              <div class="card-header"><span class="card-title">توزیع مشتریان بر اساس لیگ</span></div>
+              <div class="bar-chart" id="leagueDistChart"></div>
+            </div>
+            <div class="card">
+              <div class="card-header"><span class="card-title">مقایسه کسب‌وکارها (امتیاز صادره)</span></div>
+              <div class="bar-chart" id="reportBizChart"></div>
+            </div>
+          </div>
+          <div class="card" style="margin-top:var(--space-md)">
+            <div class="card-header"><span class="card-title">جدول خلاصه</span></div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>کسب‌وکار</th>
+                    <th>مشتریان</th>
+                    <th>خریدها</th>
+                    <th>امتیاز صادره</th>
+                    <th>امتیاز مصرفی</th>
+                    <th>نرخ مصرف</th>
+                  </tr>
+                </thead>
+                <tbody id="reportTable"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ==================== PAGE: SETTINGS ==================== -->
+        <div class="page" id="page-settings">
+          <p class="page-desc">تنظیمات کلی سیستم. تغییرات فقط در حافظه مرورگر نگه‌داری می‌شوند.</p>
+          <div class="card">
+            <div class="card-header"><span class="card-title">تنظیمات عمومی</span></div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>نام پلتفرم</label>
+                <input type="text" id="setPlatformName">
+              </div>
+              <div class="form-group">
+                <label>واحد پول پیش‌فرض</label>
+                <input type="text" id="setCurrency" value="تومان">
+              </div>
+              <div class="form-group">
+                <label>مدت انقضای امتیاز (روز)</label>
+                <input type="number" id="setPointsExpiry" min="0">
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>ثبت‌نام مشتری</label>
+                <select id="setCustReg">
+                  <option value="1">فعال</option>
+                  <option value="0">غیرفعال</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>ثبت خرید توسط کارمند</label>
+                <select id="setEmpPurchase">
+                  <option value="1">فعال</option>
+                  <option value="0">غیرفعال</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>مصرف پاداش</label>
+                <select id="setRedemption">
+                  <option value="1">فعال</option>
+                  <option value="0">غیرفعال</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group" style="margin-bottom:var(--space-md)">
+              <label>ترجیحات اعلان پیش‌فرض</label>
+              <select id="setNotifPref">
+                <option value="all">همه اعلان‌ها</option>
+                <option value="important">فقط مهم</option>
+                <option value="none">بدون اعلان</option>
+              </select>
+            </div>
+            <button class="btn btn-primary" onclick="saveSettings()">ذخیره تنظیمات</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Modal ===== -->
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal" id="modal">
+      <div class="modal-header">
+        <span class="modal-title" id="modalTitle">عنوان</span>
+        <button class="modal-close" onclick="closeModal()">&times;</button>
+      </div>
+      <div class="modal-body" id="modalBody"></div>
+      <div class="modal-footer" id="modalFooter"></div>
+    </div>
+  </div>
+
+  <div class="toast-container" id="toastContainer"></div>
+
+  <script>
+    /* ================================================================
+       CENTRAL DATA STORES – edit these to customize the prototype
+       ================================================================ */
+
+    const CATEGORIES = ["کافه و رستوران", "زیورآلات", "صرافی", "گل و گیاه", "سایر"];
+
+    let businesses = [
+      { id: "biz_1", name: "کافه بیکری بیکرسو", category: "کافه و رستوران", status: "active", customers: 1850, transactions: 12400, pointsIssued: 185000, pointsRedeemed: 72000 },
+      { id: "biz_2", name: "رستوران سورن", category: "کافه و رستوران", status: "active", customers: 1420, transactions: 9800, pointsIssued: 142000, pointsRedeemed: 58000 },
+      { id: "biz_3", name: "طلافروشی دینور", category: "زیورآلات", status: "active", customers: 980, transactions: 3200, pointsIssued: 98000, pointsRedeemed: 31000 },
+      { id: "biz_4", name: "صرافی آراکس", category: "صرافی", status: "active", customers: 2100, transactions: 15600, pointsIssued: 210000, pointsRedeemed: 95000 },
+      { id: "biz_5", name: "گلخانه رویا", category: "گل و گیاه", status: "active", customers: 640, transactions: 4100, pointsIssued: 52000, pointsRedeemed: 18000 },
+      { id: "biz_6", name: "فست‌فود تیکا", category: "فست‌فود", status: "active", customers: 520, transactions: 2900, pointsIssued: 36000, pointsRedeemed: 12000 },
+      { id: "biz_7", name: "کافه باقلوا نوشکا", category: "کافه و شیرینی", status: "active", customers: 430, transactions: 2100, pointsIssued: 28000, pointsRedeemed: 9000 }
+    ];
+
+    let customers = [
+      {
+        id: "cust_1", fullName: "آریا فرهمند", phone: "09123456789", membershipId: "HM-10245",
+        regDate: "1403/02/15", status: "active",
+        balances: { biz_1: 2450, biz_2: 1200, biz_3: 850, biz_4: 3100, biz_5: 500, biz_6: 0, biz_7: 0 },
+        leagues: { biz_1: "طلایی", biz_2: "نقره‌ای", biz_3: "برنزی", biz_4: "طلایی", biz_5: "برنزی" }
+      },
+      {
+        id: "cust_2", fullName: "نیلوفر بهرامی", phone: "09121112233", membershipId: "HM-10246",
+        regDate: "1403/03/01", status: "active",
+        balances: { biz_1: 800, biz_2: 3400, biz_3: 200, biz_4: 1500, biz_5: 0, biz_6: 0, biz_7: 0 },
+        leagues: { biz_1: "نقره‌ای", biz_2: "طلایی", biz_3: "برنزی", biz_4: "نقره‌ای", biz_5: "برنزی" }
+      },
+      {
+        id: "cust_3", fullName: "آرش نیک‌پی", phone: "09125556677", membershipId: "HM-10247",
+        regDate: "1402/11/20", status: "active",
+        balances: { biz_1: 5200, biz_2: 900, biz_3: 4100, biz_4: 800, biz_5: 1200, biz_6: 0, biz_7: 0 },
+        leagues: { biz_1: "ویژه", biz_2: "نقره‌ای", biz_3: "طلایی", biz_4: "نقره‌ای", biz_5: "نقره‌ای" }
+      },
+      {
+        id: "cust_4", fullName: "باران پارسا", phone: "09128889900", membershipId: "HM-10248",
+        regDate: "1403/05/10", status: "active",
+        balances: { biz_1: 350, biz_2: 150, biz_3: 0, biz_4: 600, biz_5: 2800, biz_6: 0, biz_7: 0 },
+        leagues: { biz_1: "برنزی", biz_2: "برنزی", biz_3: "برنزی", biz_4: "برنزی", biz_5: "طلایی" }
+      },
+      {
+        id: "cust_5", fullName: "کیان راد", phone: "09123334455", membershipId: "HM-10249",
+        regDate: "1402/08/05", status: "inactive",
+        balances: { biz_1: 100, biz_2: 50, biz_3: 0, biz_4: 0, biz_5: 0, biz_6: 0, biz_7: 0 },
+        leagues: { biz_1: "برنزی", biz_2: "برنزی", biz_3: "برنزی", biz_4: "برنزی", biz_5: "برنزی" }
+      }
+    ];
+
+    let rules = [
+      { id: "rule_1", name: "هر ۱۰۰ هزار = ۱۰ امتیاز", businessId: "biz_1", method: "per_amount", amountPer: 100000, points: 10, minPurchase: 0, maxPoints: null, startDate: "1403/01/01", endDate: "", status: "active" },
+      { id: "rule_2", name: "هر ۵۰ هزار = ۸ امتیاز", businessId: "biz_2", method: "per_amount", amountPer: 50000, points: 8, minPurchase: 0, maxPoints: null, startDate: "1403/01/01", endDate: "", status: "active" },
+      { id: "rule_3", name: "۵۰ امتیاز ثابت هر خرید", businessId: "all", method: "fixed", amountPer: 0, points: 50, minPurchase: 0, maxPoints: 50, startDate: "1403/01/01", endDate: "", status: "active" },
+      { id: "rule_4", name: "ضریب ۲ برابر مناسبتی", businessId: "biz_1", method: "multiplier", amountPer: 0, points: 2, minPurchase: 0, maxPoints: null, startDate: "1403/06/01", endDate: "1403/06/30", status: "inactive" },
+      { id: "rule_5", name: "جایزه خرید بالای ۵ میلیون", businessId: "biz_3", method: "bonus", amountPer: 5000000, points: 100, minPurchase: 5000000, maxPoints: 100, startDate: "1403/01/01", endDate: "", status: "active" }
+    ];
+
+    // Leagues per business: { bizId: [ { id, name, min, max, color, order, status } ] }
+    let leagues = {
+      biz_1: [
+        { id: "lg_1a", name: "برنزی", min: 0, max: 999, color: "#cd7f32", order: 1, status: "active" },
+        { id: "lg_1b", name: "نقره‌ای", min: 1000, max: 2999, color: "#c0c0c0", order: 2, status: "active" },
+        { id: "lg_1c", name: "طلایی", min: 3000, max: 5999, color: "#d4a84b", order: 3, status: "active" },
+        { id: "lg_1d", name: "ویژه", min: 6000, max: 999999, color: "#9b59b6", order: 4, status: "active" }
+      ],
+      biz_2: [
+        { id: "lg_2a", name: "برنزی", min: 0, max: 1499, color: "#cd7f32", order: 1, status: "active" },
+        { id: "lg_2b", name: "نقره‌ای", min: 1500, max: 3999, color: "#c0c0c0", order: 2, status: "active" },
+        { id: "lg_2c", name: "طلایی", min: 4000, max: 999999, color: "#d4a84b", order: 3, status: "active" }
+      ],
+      biz_3: [
+        { id: "lg_3a", name: "برنزی", min: 0, max: 999, color: "#cd7f32", order: 1, status: "active" },
+        { id: "lg_3b", name: "نقره‌ای", min: 1000, max: 4999, color: "#c0c0c0", order: 2, status: "active" },
+        { id: "lg_3c", name: "طلایی", min: 5000, max: 999999, color: "#d4a84b", order: 3, status: "active" }
+      ],
+      biz_4: [
+        { id: "lg_4a", name: "برنزی", min: 0, max: 1999, color: "#cd7f32", order: 1, status: "active" },
+        { id: "lg_4b", name: "نقره‌ای", min: 2000, max: 4999, color: "#c0c0c0", order: 2, status: "active" },
+        { id: "lg_4c", name: "طلایی", min: 5000, max: 999999, color: "#d4a84b", order: 3, status: "active" }
+      ],
+      biz_5: [
+        { id: "lg_5a", name: "برنزی", min: 0, max: 999, color: "#cd7f32", order: 1, status: "active" },
+        { id: "lg_5b", name: "نقره‌ای", min: 1000, max: 2999, color: "#c0c0c0", order: 2, status: "active" },
+        { id: "lg_5c", name: "طلایی", min: 3000, max: 999999, color: "#d4a84b", order: 3, status: "active" }
+      ]
+    };
+
+    let rewards = [
+      { id: "rw_1", name: "تخفیف ۵ درصدی", cost: 500, businessIds: ["biz_1", "biz_2"], quantity: 500, startDate: "1403/01/01", endDate: "", status: "active" },
+      { id: "rw_2", name: "نوشیدنی رایگان", cost: 700, businessIds: ["biz_1"], quantity: 200, startDate: "1403/01/01", endDate: "", status: "active" },
+      { id: "rw_3", name: "تخفیف ۱۰ درصدی", cost: 1000, businessIds: ["biz_1", "biz_2", "biz_3"], quantity: 300, startDate: "1403/01/01", endDate: "", status: "active" },
+      { id: "rw_4", name: "هدیه ویژه", cost: 2000, businessIds: ["all"], quantity: 50, startDate: "1403/01/01", endDate: "1403/12/29", status: "active" }
+    ];
+
+    let offers = [
+      { id: "of_1", description: "تخفیف ویژه اعضای طلایی کافه بیکری بیکرسو در رستوران سورن", sourceBiz: "biz_1", league: "طلایی", destBiz: "biz_2", startDate: "1403/04/01", endDate: "1403/06/31", maxQty: 100, status: "active" }
+    ];
+
+    let employees = [
+      { id: "emp_1", name: "کوروش مهرگان", phone: "09120001122", businessId: "all", branch: "مرکزی", role: "مدیر کل", status: "active" },
+      { id: "emp_2", name: "یلدا نیک‌پی", phone: "09123334455", businessId: "biz_1", branch: "شعبه ولیعصر", role: "مدیر کسب‌وکار", status: "active" },
+      { id: "emp_3", name: "شایان فرهمند", phone: "09125556677", businessId: "biz_1", branch: "شعبه ولیعصر", role: "صندوق‌دار", status: "active" },
+      { id: "emp_4", name: "ترانه دادگر", phone: "09127778899", businessId: "biz_2", branch: "شعبه جردن", role: "سرپرست شعبه", status: "active" },
+      { id: "emp_5", name: "بردیا راد", phone: "09121110000", businessId: "biz_4", branch: "شعبه میدان ولیعصر", role: "صندوق‌دار", status: "inactive" }
+    ];
+
+    let transactions = [
+      { id: "TX-1001", customerId: "cust_1", customerName: "آریا فرهمند", businessId: "biz_1", type: "purchase", amount: 250000, points: 25, employee: "شایان فرهمند", datetime: "1403/08/15 14:32", status: "success" },
+      { id: "TX-1002", customerId: "cust_2", customerName: "نیلوفر بهرامی", businessId: "biz_2", type: "redemption", amount: 0, points: -700, employee: "ترانه دادگر", datetime: "1403/08/15 13:10", status: "success" },
+      { id: "TX-1003", customerId: "cust_3", customerName: "آرش نیک‌پی", businessId: "biz_3", type: "purchase", amount: 5200000, points: 620, employee: "کوروش مهرگان", datetime: "1403/08/14 18:45", status: "success" },
+      { id: "TX-1004", customerId: "cust_1", customerName: "آریا فرهمند", businessId: "biz_4", type: "purchase", amount: 1800000, points: 180, employee: "بردیا راد", datetime: "1403/08/14 11:20", status: "success" },
+      { id: "TX-1005", customerId: "cust_4", customerName: "باران پارسا", businessId: "biz_5", type: "redemption", amount: 0, points: -500, employee: "کوروش مهرگان", datetime: "1403/08/13 16:00", status: "success" },
+      { id: "TX-1006", customerId: "cust_2", customerName: "نیلوفر بهرامی", businessId: "biz_1", type: "purchase", amount: 95000, points: 9, employee: "شایان فرهمند", datetime: "1403/08/13 10:15", status: "cancelled" },
+      { id: "TX-1007", customerId: "cust_5", customerName: "کیان راد", businessId: "biz_1", type: "adjustment", amount: 0, points: 50, employee: "یلدا نیک‌پی", datetime: "1403/08/12 09:30", status: "success" },
+      { id: "TX-1008", customerId: "cust_3", customerName: "آرش نیک‌پی", businessId: "biz_2", type: "purchase", amount: 340000, points: 54, employee: "ترانه دادگر", datetime: "1403/08/12 20:05", status: "pending" }
+    ];
+
+    let settings = {
+      platformName: "رادوان همراه",
+      currency: "تومان",
+      pointsExpiry: 365,
+      custReg: "1",
+      empPurchase: "1",
+      redemption: "1",
+      notifPref: "all"
+    };
+
+    // Modal state
+    let modalMode = null; // 'add' | 'edit'
+    let modalEntity = null; // 'business' | 'rule' | ...
+    let editingId = null;
+
+    /* ================================================================
+       UTILITIES
+       ================================================================ */
+
+    function fmt(n) {
+      return Number(n).toLocaleString("fa-IR");
+    }
+
+    function bizName(id) {
+      if (id === "all") return "همه کسب‌وکارها";
+      const b = businesses.find(x => x.id === id);
+      return b ? b.name : id;
+    }
+
+    function methodLabel(m) {
+      const map = {
+        per_amount: "بر اساس مبلغ",
+        fixed: "امتیاز ثابت",
+        multiplier: "ضریب",
+        bonus: "امتیاز جایزه"
+      };
+      return map[m] || m;
+    }
+
+    function typeLabel(t) {
+      return { purchase: "خرید", redemption: "مصرف پاداش", adjustment: "تعدیل" }[t] || t;
+    }
+
+    function statusBadge(s) {
+      if (s === "active" || s === "success") return '<span class="badge badge-success">' + (s === "active" ? "فعال" : "موفق") + '</span>';
+      if (s === "inactive" || s === "cancelled") return '<span class="badge badge-error">' + (s === "inactive" ? "غیرفعال" : "لغو شده") + '</span>';
+      if (s === "pending") return '<span class="badge badge-warning">در انتظار</span>';
+      return '<span class="badge badge-muted">' + s + '</span>';
+    }
+
+    function uid(prefix) {
+      return prefix + "_" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+    }
+
+    function showToast(msg, type) {
+      const c = document.getElementById("toastContainer");
+      const t = document.createElement("div");
+      t.className = "toast " + (type || "info");
+      t.textContent = msg;
+      c.appendChild(t);
+      setTimeout(() => t.remove(), 3500);
+    }
+
+    /* ================================================================
+       NAVIGATION
+       ================================================================ */
+
+    const PAGE_TITLES = {
+      overview: "نمای کلی",
+      businesses: "کسب‌وکارها",
+      rules: "قوانین امتیازدهی",
+      leagues: "لیگ‌ها و سطوح عضویت",
+      rewards: "پاداش‌ها و پیشنهادها",
+      customers: "مشتریان",
+      employees: "کارکنان و دسترسی‌ها",
+      transactions: "تراکنش‌ها",
+      reports: "گزارش‌ها",
+      settings: "تنظیمات سیستم"
+    };
+
+    function navigate(page) {
+      document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+      document.querySelectorAll(".nav-item").forEach(n => n.classList.remove("active"));
+      const el = document.getElementById("page-" + page);
+      if (el) el.classList.add("active");
+      const nav = document.querySelector('.nav-item[data-page="' + page + '"]');
+      if (nav) nav.classList.add("active");
+      document.getElementById("pageTitle").textContent = PAGE_TITLES[page] || page;
+      closeSidebar();
+
+      // Render page-specific content
+      if (page === "overview") renderOverview();
+      else if (page === "businesses") renderBusinesses();
+      else if (page === "rules") renderRules();
+      else if (page === "leagues") { populateBizSelects(); renderLeagues(); }
+      else if (page === "rewards") renderRewards();
+      else if (page === "customers") { populateBizSelects(); renderCustomers(); }
+      else if (page === "employees") renderEmployees();
+      else if (page === "transactions") { populateBizSelects(); renderTransactions(); }
+      else if (page === "reports") { populateBizSelects(); renderReports(); }
+      else if (page === "settings") loadSettingsForm();
+    }
+
+    function toggleSidebar() {
+      document.getElementById("sidebar").classList.toggle("open");
+      document.getElementById("sidebarOverlay").classList.toggle("show");
+    }
+
+    function closeSidebar() {
+      document.getElementById("sidebar").classList.remove("open");
+      document.getElementById("sidebarOverlay").classList.remove("show");
+    }
+
+    function onDateRangeChange() {
+      // Re-render current page if it uses the range
+      const active = document.querySelector(".page.active");
+      if (!active) return;
+      const id = active.id.replace("page-", "");
+      if (id === "overview") renderOverview();
+      if (id === "reports") renderReports();
+    }
+
+    /* ================================================================
+       MODAL HELPERS
+       ================================================================ */
+
+    function openModal(title, bodyHtml, footerHtml) {
+      document.getElementById("modalTitle").textContent = title;
+      document.getElementById("modalBody").innerHTML = bodyHtml;
+      document.getElementById("modalFooter").innerHTML = footerHtml;
+      document.getElementById("modalOverlay").classList.add("open");
+    }
+
+    function closeModal() {
+      document.getElementById("modalOverlay").classList.remove("open");
+      modalMode = null;
+      modalEntity = null;
+      editingId = null;
+    }
+
+    document.getElementById("modalOverlay").addEventListener("click", function (e) {
+      if (e.target === this) closeModal();
+    });
+
+    /* ================================================================
+       POPULATE SELECTS
+       ================================================================ */
+
+    function populateBizSelects() {
+      const selects = [
+        "leagueBizSelect", "custBizFilter", "txBizFilter", "reportBizFilter"
+      ];
+      selects.forEach(sid => {
+        const el = document.getElementById(sid);
+        if (!el) return;
+        const current = el.value;
+        const isFilter = sid.includes("Filter") || sid === "reportBizFilter";
+        el.innerHTML = isFilter ? '<option value="">همه</option>' : "";
+        businesses.forEach(b => {
+          const opt = document.createElement("option");
+          opt.value = b.id;
+          opt.textContent = b.name;
+          el.appendChild(opt);
+        });
+        if (current) el.value = current;
+        else if (!isFilter && businesses.length) el.value = businesses[0].id;
+      });
+    }
+
+    function bizOptionsHtml(selected, includeAll) {
+      let html = includeAll ? '<option value="all"' + (selected === "all" ? " selected" : "") + '>همه کسب‌وکارها</option>' : "";
+      businesses.forEach(b => {
+        html += '<option value="' + b.id + '"' + (selected === b.id ? " selected" : "") + '>' + b.name + '</option>';
+      });
+      return html;
+    }
+
+    /* ================================================================
+       PAGE: OVERVIEW
+       ================================================================ */
+
+    function renderOverview() {
+      const totalCust = customers.length;
+      const activeCust = customers.filter(c => c.status === "active").length;
+      const totalIssued = businesses.reduce((s, b) => s + b.pointsIssued, 0);
+      const totalRedeemed = businesses.reduce((s, b) => s + b.pointsRedeemed, 0);
+      const totalPurchases = businesses.reduce((s, b) => s + b.transactions, 0);
+      const activeBiz = businesses.filter(b => b.status === "active").length;
+
+      document.getElementById("overviewStats").innerHTML =
+        cardStat("تعداد کل مشتریان", fmt(totalCust)) +
+        cardStat("مشتریان فعال", fmt(activeCust)) +
+        cardStat("مجموع امتیاز صادرشده", fmt(totalIssued), true) +
+        cardStat("مجموع امتیاز مصرف‌شده", fmt(totalRedeemed), true) +
+        cardStat("تعداد خریدهای ثبت‌شده", fmt(totalPurchases)) +
+        cardStat("کسب‌وکارهای فعال", fmt(activeBiz));
+
+      // Business performance bars (by points issued)
+      const maxIssued = Math.max(...businesses.map(b => b.pointsIssued), 1);
+      document.getElementById("bizPerfChart").innerHTML = businesses.map(b =>
+        barRow(b.name, b.pointsIssued, maxIssued)
+      ).join("");
+
+      // Points issued vs redeemed
+      document.getElementById("pointsChart").innerHTML =
+        barRow("صادرشده", totalIssued, totalIssued) +
+        barRow("مصرف‌شده", totalRedeemed, totalIssued);
+
+      // Simple growth SVG
+      const months = ["فروردین", "اردیبهشت", "خرداد", "تیر", "مرداد", "شهریور"];
+      const values = [6200, 6800, 7100, 7500, 7800, 8200];
+      const maxV = Math.max(...values);
+      const w = 400, h = 140, pad = 20;
+      let points = values.map((v, i) => {
+        const x = pad + (i / (values.length - 1)) * (w - 2 * pad);
+        const y = h - pad - (v / maxV) * (h - 2 * pad);
+        return x + "," + y;
+      }).join(" ");
+      document.getElementById("growthChart").innerHTML =
+        '<svg viewBox="0 0 ' + w + ' ' + h + '" preserveAspectRatio="none">' +
+        '<polyline fill="none" stroke="#d4a84b" stroke-width="2.5" points="' + points + '"/>' +
+        values.map((v, i) => {
+          const x = pad + (i / (values.length - 1)) * (w - 2 * pad);
+          const y = h - pad - (v / maxV) * (h - 2 * pad);
+          return '<circle cx="' + x + '" cy="' + y + '" r="3.5" fill="#d4a84b"/>';
+        }).join("") +
+        '</svg>' +
+        '<div style="display:flex;justify-content:space-between;font-size:0.75rem;color:var(--text-muted);margin-top:4px">' +
+        months.map(m => '<span>' + m + '</span>').join("") + '</div>';
+
+      // Recent activity
+      const activities = [
+        { text: "خرید جدید توسط آریا فرهمند در کافه بیکری بیکرسو (۲۵۰,۰۰۰ تومان)", time: "۱۵ دقیقه پیش" },
+        { text: "مصرف پاداش «نوشیدنی رایگان» توسط نیلوفر بهرامی", time: "۱ ساعت پیش" },
+        { text: "ثبت‌نام مشتری جدید: باران پارسا", time: "۳ ساعت پیش" },
+        { text: "تعدیل امتیاز +۵۰ برای کیان راد توسط یلدا نیک‌پی", time: "دیروز" },
+        { text: "قانون امتیازدهی «ضریب ۲ برابر» غیرفعال شد", time: "۲ روز پیش" }
+      ];
+      document.getElementById("recentActivity").innerHTML = activities.map(a =>
+        '<li class="activity-item"><span class="activity-dot"></span><div><div>' + a.text + '</div><div class="activity-time">' + a.time + '</div></div></li>'
+      ).join("");
+    }
+
+    function cardStat(label, value, gold) {
+      return '<div class="stat-card"><div class="label">' + label + '</div><div class="value' + (gold ? ' gold' : '') + '">' + value + '</div></div>';
+    }
+
+    function barRow(label, value, max) {
+      const pct = Math.min(100, Math.round((value / max) * 100));
+      return '<div class="bar-row"><span class="bar-label">' + label + '</span><div class="bar-track"><div class="bar-fill" style="width:' + pct + '%"></div></div><span class="bar-value">' + fmt(value) + '</span></div>';
+    }
+
+    /* ================================================================
+       PAGE: BUSINESSES
+       ================================================================ */
+
+    function renderBusinesses() {
+      const tbody = document.getElementById("businessesTable");
+      tbody.innerHTML = businesses.map(b =>
+        '<tr>' +
+        '<td>' + b.name + '</td>' +
+        '<td>' + b.category + '</td>' +
+        '<td>' + statusBadge(b.status) + '</td>' +
+        '<td>' + fmt(b.customers) + '</td>' +
+        '<td>' + fmt(b.transactions) + '</td>' +
+        '<td>' + fmt(b.pointsIssued) + '</td>' +
+        '<td>' + fmt(b.pointsRedeemed) + '</td>' +
+        '<td>' +
+          '<button class="btn btn-secondary btn-sm" onclick="openBusinessModal(\'' + b.id + '\')">ویرایش</button> ' +
+          '<button class="btn btn-secondary btn-sm" onclick="toggleBusinessStatus(\'' + b.id + '\')">' + (b.status === "active" ? "غیرفعال" : "فعال") + '</button> ' +
+          '<button class="btn btn-danger btn-sm" onclick="deleteBusiness(\'' + b.id + '\')">حذف</button>' +
+        '</td></tr>'
+      ).join("");
+    }
+
+    function openBusinessModal(id) {
+      modalEntity = "business";
+      modalMode = id ? "edit" : "add";
+      editingId = id || null;
+      const b = id ? businesses.find(x => x.id === id) : null;
+      const body =
+        '<div class="form-row">' +
+          '<div class="form-group"><label>نام کسب‌وکار *</label><input type="text" id="fBizName" value="' + (b ? b.name : "") + '"></div>' +
+          '<div class="form-group"><label>دسته‌بندی</label><select id="fBizCat">' +
+            CATEGORIES.map(c => '<option' + (b && b.category === c ? " selected" : "") + '>' + c + '</option>').join("") +
+          '</select></div>' +
+        '</div>' +
+        '<div class="form-group"><label>وضعیت</label><select id="fBizStatus">' +
+          '<option value="active"' + (!b || b.status === "active" ? " selected" : "") + '>فعال</option>' +
+          '<option value="inactive"' + (b && b.status === "inactive" ? " selected" : "") + '>غیرفعال</option>' +
+        '</select></div>';
+      const footer =
+        '<button class="btn btn-primary" onclick="saveBusiness()">ذخیره</button>' +
+        '<button class="btn btn-secondary" onclick="closeModal()">انصراف</button>';
+      openModal(id ? "ویرایش کسب‌وکار" : "افزودن کسب‌وکار", body, footer);
+    }
+
+    function saveBusiness() {
+      const name = document.getElementById("fBizName").value.trim();
+      if (!name) { showToast("نام کسب‌وکار الزامی است.", "error"); return; }
+      const cat = document.getElementById("fBizCat").value;
+      const status = document.getElementById("fBizStatus").value;
+      if (modalMode === "edit") {
+        const b = businesses.find(x => x.id === editingId);
+        if (b) { b.name = name; b.category = cat; b.status = status; }
+        showToast("کسب‌وکار به‌روزرسانی شد.", "success");
+      } else {
+        const newId = uid("biz");
+        businesses.push({ id: newId, name, category: cat, status, customers: 0, transactions: 0, pointsIssued: 0, pointsRedeemed: 0 });
+        leagues[newId] = [
+          { id: uid("lg"), name: "برنزی", min: 0, max: 999, color: "#cd7f32", order: 1, status: "active" },
+          { id: uid("lg"), name: "نقره‌ای", min: 1000, max: 2999, color: "#c0c0c0", order: 2, status: "active" },
+          { id: uid("lg"), name: "طلایی", min: 3000, max: 999999, color: "#d4a84b", order: 3, status: "active" }
+        ];
+        showToast("کسب‌وکار جدید اضافه شد.", "success");
+      }
+      closeModal();
+      renderBusinesses();
+      populateBizSelects();
+    }
+
+    function toggleBusinessStatus(id) {
+      const b = businesses.find(x => x.id === id);
+      if (!b) return;
+      b.status = b.status === "active" ? "inactive" : "active";
+      showToast("وضعیت «" + b.name + "» تغییر کرد.", "success");
+      renderBusinesses();
+    }
+
+    function deleteBusiness(id) {
+      if (!confirm("آیا از حذف این کسب‌وکار مطمئن هستید؟")) return;
+      businesses = businesses.filter(x => x.id !== id);
+      delete leagues[id];
+      showToast("کسب‌وکار حذف شد.", "success");
+      renderBusinesses();
+      populateBizSelects();
+    }
+
+    /* ================================================================
+       PAGE: RULES
+       ================================================================ */
+
+    function renderRules() {
+      const tbody = document.getElementById("rulesTable");
+      tbody.innerHTML = rules.map(r => {
+        let valueDesc = "";
+        if (r.method === "per_amount") valueDesc = "هر " + fmt(r.amountPer) + " = " + fmt(r.points) + " امتیاز";
+        else if (r.method === "fixed") valueDesc = fmt(r.points) + " امتیاز ثابت";
+        else if (r.method === "multiplier") valueDesc = "ضریب " + r.points;
+        else if (r.method === "bonus") valueDesc = fmt(r.points) + " امتیاز جایزه";
+        return '<tr>' +
+          '<td>' + r.name + '</td>' +
+          '<td>' + bizName(r.businessId) + '</td>' +
+          '<td>' + methodLabel(r.method) + '</td>' +
+          '<td>' + valueDesc + '</td>' +
+          '<td>' + (r.minPurchase ? fmt(r.minPurchase) : "—") + '</td>' +
+          '<td>' + r.startDate + (r.endDate ? " تا " + r.endDate : "") + '</td>' +
+          '<td>' + statusBadge(r.status) + '</td>' +
+          '<td>' +
+            '<button class="btn btn-secondary btn-sm" onclick="openRuleModal(\'' + r.id + '\')">ویرایش</button> ' +
+            '<button class="btn btn-secondary btn-sm" onclick="toggleRuleStatus(\'' + r.id + '\')">' + (r.status === "active" ? "غیرفعال" : "فعال") + '</button> ' +
+            '<button class="btn btn-danger btn-sm" onclick="deleteRule(\'' + r.id + '\')">حذف</button>' +
+          '</td></tr>';
+      }).join("");
+    }
+
+    function openRuleModal(id) {
+      modalEntity = "rule";
+      modalMode = id ? "edit" : "add";
+      editingId = id || null;
+      const r = id ? rules.find(x => x.id === id) : null;
+      const body =
+        '<div class="form-row">' +
+          '<div class="form-group"><label>نام قانون *</label><input type="text" id="fRuleName" value="' + (r ? r.name : "") + '"></div>' +
+          '<div class="form-group"><label>کسب‌وکار</label><select id="fRuleBiz">' + bizOptionsHtml(r ? r.businessId : "all", true) + '</select></div>' +
+        '</div>' +
+        '<div class="form-row">' +
+          '<div class="form-group"><label>روش محاسبه</label><select id="fRuleMethod">' +
+            '<option value="per_amount"' + (!r || r.method === "per_amount" ? " selected" : "") + '>بر اساس مبلغ</option>' +
+            '<option value="fixed"' + (r && r.method === "fixed" ? " selected" : "") + '>امتیاز ثابت</option>' +
+            '<option value="multiplier"' + (r && r.method === "multiplier" ? " selected" : "") + '>ضریب</option>' +
+            '<option value="bonus"' + (r && r.method === "bonus" ? " selected" : "") + '>امتیاز جایزه</option>' +
+          '</select></div>' +
+          '<div class="form-group"><label>مقدار امتیاز / ضریب</label><input type="number" id="fRulePoints" value="' + (r ? r.points : 10) + '" min="0"></div>' +
+        '</div>' +
+        '<div class="form-row">' +
+          '<div class="form-group"><label>مبلغ پایه (برای روش مبلغی)</label><input type="number" id="fRuleAmountPer" value="' + (r ? r.amountPer : 100000) + '" min="0"></div>' +
+          '<div class="form-group"><label>حداقل مبلغ خرید</label><input type="number" id="fRuleMin" value="' + (r ? r.minPurchase : 0) + '" min="0"></div>' +
+        '</div>' +
+        '<div class="form-row">' +
+          '<div class="form-group"><label>تاریخ شروع</label><input type="text" id="fRuleStart" value="' + (r ? r.startDate : "1403/01/01") + '" placeholder="1403/01/01"></div>' +
+          '<div class="form-group"><label>تاریخ پایان (اختیاری)</label><input type="text" id="fRuleEnd" value="' + (r ? r.endDate : "") + '" placeholder="خالی = بدون پایان"></div>' +
+        '</div>' +
+        '<div class="form-group"><label>وضعیت</label><select id="fRuleStatus">' +
+          '<option value="active"' + (!r || r.status === "active" ? " selected" : "") + '>فعال</option>' +
+          '<option value="inactive"' + (r && r.status === "inactive" ? " selected" : "") + '>غیرفعال</option>' +
+        '</select></div>';
+      const footer =
+        '<button class="btn btn-primary" onclick="saveRule()">ذخیره</button>' +
+        '<button class="btn btn-secondary" onclick="closeModal()">انصراف</button>';
+      openModal(id ? "ویرایش قانون" : "افزودن قانون", body, footer);
+    }
+
+    function saveRule() {
+      const name = document.getElementById("fRuleName").value.trim();
+      if (!name) { showToast("نام قانون الزامی است.", "error"); return; }
+      const data = {
+        name,
+        businessId: document.getElementById("fRuleBiz").value,
+        method: document.getElementById("fRuleMethod").value,
+        points: Number(document.getElementById("fRulePoints").value) || 0,
+        amountPer: Number(document.getElementById("fRuleAmountPer").value) || 0,
+        minPurchase: Number(document.getElementById("fRuleMin").value) || 0,
+        maxPoints: null,
+        startDate: document.getElementById("fRuleStart").value.trim() || "1403/01/01",
+        endDate: document.getElementById("fRuleEnd").value.trim(),
+        status: document.getElementById("fRuleStatus").value
+      };
+      if (modalMode === "edit") {
+        const r = rules.find(x => x.id === editingId);
+        if (r) Object.assign(r, data);
+        showToast("قانون به‌روزرسانی شد.", "success");
+      } else {
+        data.id = uid("rule");
+        rules.push(data);
+        showToast("قانون جدید اضافه شد.", "success");
+      }
+      closeModal();
+      renderRules();
+    }
+
+    function toggleRuleStatus(id) {
+      const r = rules.find(x => x.id === id);
+      if (!r) return;
+      r.status = r.status === "active" ? "inactive" : "active";
+      showToast("وضعیت قانون تغییر کرد.", "success");
+      renderRules();
+    }
+
+    function deleteRule(id) {
+      if (!confirm("آیا از حذف این قانون مطمئن هستید؟")) return;
+      rules = rules.filter(x => x.id !== id);
+      showToast("قانون حذف شد.", "success");
+      renderRules();
+    }
+
+    /* ================================================================
+       PAGE: LEAGUES
+       ================================================================ */
+
+    function renderLeagues() {
+      const bizId = document.getElementById("leagueBizSelect").value || (businesses[0] && businesses[0].id);
+      if (!bizId) return;
+      document.getElementById("leagueBizTitle").textContent = "سطوح عضویت — " + bizName(bizId);
+      const list = (leagues[bizId] || []).slice().sort((a, b) => a.order - b.order);
+      const container = document.getElementById("leagueLevels");
+      if (!list.length) {
+        container.innerHTML = '<div class="empty">سطحی تعریف نشده است.</div>';
+        return;
+      }
+      container.innerHTML = list.map(lg =>
+        '<div class="league-item">' +
+          '<span class="league-color" style="background:' + lg.color + '"></span>' +
+          '<div class="league-info">' +
+            '<div class="league-name">' + lg.name + ' ' + statusBadge(lg.status) + '</div>' +
+            '<div class="league-range">' + fmt(lg.min) + ' تا ' + (lg.max >= 999999 ? "بی‌نهایت" : fmt(lg.max)) + ' امتیاز</div>' +
+          '</div>' +
+          '<button class="btn btn-secondary btn-sm" onclick="openLeagueModal(\'' + bizId + '\',\'' + lg.id + '\')">ویرایش</button> ' +
+          '<button class="btn btn-danger btn-sm" onclick="deleteLeague(\'' + bizId + '\',\'' + lg.id + '\')">حذف</button>' +
+        '</div>'
+      ).join("");
+    }
+
+    function openLeagueModal(bizId, lgId) {
+      modalEntity = "league";
+      modalMode = lgId ? "edit" : "add";
+      editingId = lgId || null;
+      const currentBiz = bizId || document.getElementById("leagueBizSelect").value;
+      const list = leagues[currentBiz] || [];
+      const lg = lgId ? list.find(x => x.id === lgId) : null;
+      const body =
+        '<div class="form-group" style="margin-bottom:12px"><label>کسب‌وکار</label><select id="fLgBiz" ' + (lgId ? "disabled" : "") + '>' + bizOptionsHtml(currentBiz, false) + '</select></div>' +
+        '<div class="form-row">' +
+          '<div class="form-group"><label>نام سطح *</label><input type="text" id="fLgName" value="' + (lg ? lg.name : "") + '"></div>' +
+          '<div class="form-group"><label>رنگ</label><input type="color" id="fLgColor" value="' + (lg ? lg.color : "#d4a84b") + '" style="height:38px;padding:2px"></div>' +
+        '</div>' +
+        '<div class="form-row">' +
+          '<div class="form-group"><label>حداقل امتیاز</label><input type="number" id="fLgMin" value="' + (lg ? lg.min : 0) + '" min="0"></div>' +
+          '<div class="form-group"><label>حداکثر امتیاز</label><input type="number" id="fLgMax" value="' + (lg ? lg.max : 999) + '" min="0"></div>' +
+        '</div>' +
+        '<div class="form-row">' +
+          '<div class="form-group"><label>ترتیب</label><input type="number" id="fLgOrder" value="' + (lg ? lg.order : (list.length + 1)) + '" min="1"></div>' +
+          '<div class="form-group"><label>وضعیت</label><select id="fLgStatus">' +
+            '<option value="active"' + (!lg || lg.status === "active" ? " selected" : "") + '>فعال</option>' +
+            '<option value="inactive"' + (lg && lg.status === "inactive" ? " selected" : "") + '>غیرفعال</option>' +
+          '</select></div>' +
+        '</div>';
+      const footer =
+        '<button class="btn btn-primary" onclick="saveLeague()">ذخیره</button>' +
+        '<button class="btn btn-secondary" onclick="closeModal()">انصراف</button>';
+      openModal(lgId ? "ویرایش سطح" : "افزودن سطح", body, footer);
+    }
+
+    function saveLeague() {
+      const name = document.getElementById("fLgName").value.trim();
+      if (!name) { showToast("نام سطح الزامی است.", "error"); return; }
+      const bizId = document.getElementById("fLgBiz").value;
+      if (!leagues[bizId]) leagues[bizId] = [];
+      const data = {
+        name,
+        color: document.getElementById("fLgColor").value,
+        min: Number(document.getElementById("fLgMin").value) || 0,
+        max: Number(document.getElementById("fLgMax").value) || 999999,
+        order: Number(document.getElementById("fLgOrder").value) || 1,
+        status: document.getElementById("fLgStatus").value
+      };
+      if (modalMode === "edit") {
+        const lg = leagues[bizId].find(x => x.id === editingId);
+        if (lg) Object.assign(lg, data);
+        showToast("سطح به‌روزرسانی شد.", "success");
+      } else {
+        data.id = uid("lg");
+        leagues[bizId].push(data);
+        showToast("سطح جدید اضافه شد.", "success");
+      }
+      closeModal();
+      document.getElementById("leagueBizSelect").value = bizId;
+      renderLeagues();
+    }
+
+    function deleteLeague(bizId, lgId) {
+      if (!confirm("آیا از حذف این سطح مطمئن هستید؟")) return;
+      leagues[bizId] = (leagues[bizId] || []).filter(x => x.id !== lgId);
+      showToast("سطح حذف شد.", "success");
+      renderLeagues();
+    }
+
+    /* ================================================================
+       PAGE: REWARDS & OFFERS
+       ================================================================ */
+
+    function renderRewards() {
+      document.getElementById("rewardsTable").innerHTML = rewards.map(r => {
+        const bizs = r.businessIds.includes("all") ? "همه" : r.businessIds.map(id => bizName(id)).join("، ");
+        return '<tr>' +
+          '<td>' + r.name + '</td>' +
+          '<td>' + fmt(r.cost) + '</td>' +
+          '<td>' + bizs + '</td>' +
+          '<td>' + fmt(r.quantity) + '</td>' +
+          '<td>' + r.startDate + (r.endDate ? " تا " + r.endDate : "") + '</td>' +
+          '<td>' + statusBadge(r.status) + '</td>' +
+          '<td>' +
+            '<button class="btn btn-secondary btn-sm" onclick="openRewardModal(\'' + r.id + '\')">ویرایش</button> ' +
+            '<button class="btn btn-secondary btn-sm" onclick="toggleRewardStatus(\'' + r.id + '\')">' + (r.status === "active" ? "غیرفعال" : "فعال") + '</button> ' +
+            '<button class="btn btn-danger btn-sm" onclick="deleteReward(\'' + r.id + '\')">حذف</button>' +
+          '</td></tr>';
+      }).join("");
+
+      document.getElementById("offersTable").innerHTML = offers.map(o =>
+        '<tr>' +
+          '<td>' + o.description + '</td>' +
+          '<td>' + bizName(o.sourceBiz) + '</td>' +
+          '<td>' + o.league + '</td>' +
+          '<td>' + bizName(o.destBiz) + '</td>' +
+          '<td>' + o.startDate + (o.endDate ? " تا " + o.endDate : "") + '</td>' +
+          '<td>' + fmt(o.maxQty) + '</td>' +
+          '<td>' + statusBadge(o.status) + '</td>' +
+          '<td>' +
+            '<button class="btn btn-secondary btn-sm" onclick="openOfferModal(\'' + o.id + '\')">ویرایش</button> ' +
+            '<button class="btn btn-danger btn-sm" onclick="deleteOffer(\'' + o.id + '\')">حذف</button>' +
+          '</td></tr>'
+      ).join("") || '<tr><td colspan="8" class="empty">پیشنهادی ثبت نشده</td></tr>';
+    }
+
+    function openRewardModal(id) {
+      modalEntity = "reward";
+      modalMode = id ? "edit" : "add";
+      editingId = id || null;
+      const r = id ? rewards.find(x => x.id === id) : null;
+      const body =
+        '<div class="form-row">' +
+          '<div class="form-group"><label>نام پاداش *</label><input type="text" id="fRwName" value="' + (r ? r.name : "") + '"></div>' +
+          '<div class="form-group"><label>هزینه (امتیاز) *</label><input type="number" id="fRwCost" value="' + (r ? r.cost : 500) + '" min="1"></div>' +
+        '</div>' +
+        '<div class="form-row">' +
+          '<div class="form-group"><label>موجودی</label><input type="number" id="fRwQty" value="' + (r ? r.quantity : 100) + '" min="0"></div>' +
+          '<div class="form-group"><label>وضعیت</label><select id="fRwStatus">' +
+            '<option value="active"' + (!r || r.status === "active" ? " selected" : "") + '>فعال</option>' +
+            '<option value="inactive"' + (r && r.status === "inactive" ? " selected" : "") + '>غیرفعال</option>' +
+          '</select></div>' +
+        '</div>' +
+        '<div class="form-group" style="margin-bottom:12px"><label>کسب‌وکارها (Ctrl+کلیک برای چندتایی)</label>' +
+          '<select id="fRwBiz" multiple style="min-height:90px">' +
+            '<option value="all"' + (r && r.businessIds.includes("all") ? " selected" : "") + '>همه</option>' +
+            businesses.map(b => '<option value="' + b.id + '"' + (r && r.businessIds.includes(b.id) ? " selected" : "") + '>' + b.name + '</option>').join("") +
+          '</select></div>' +
+        '<div class="form-row">' +
+          '<div class="form-group"><label>تاریخ شروع</label><input type="text" id="fRwStart" value="' + (r ? r.startDate : "1403/01/01") + '"></div>' +
+          '<div class="form-group"><label>تاریخ پایان</label><input type="text" id="fRwEnd" value="' + (r ? r.endDate : "") + '"></div>' +
+        '</div>';
+      const footer =
+        '<button class="btn btn-primary" onclick="saveReward()">ذخیره</button>' +
+        '<button class="btn btn-secondary" onclick="closeModal()">انصراف</button>';
+      openModal(id ? "ویرایش پاداش" : "افزودن پاداش", body, footer);
+    }
+
+    function saveReward() {
+      const name = document.getElementById("fRwName").value.trim();
+      const cost = Number(document.getElementById("fRwCost").value);
+      if (!name || !cost || cost < 1) { showToast("نام و هزینه معتبر الزامی است.", "error"); return; }
+      const sel = document.getElementById("fRwBiz");
+      const businessIds = Array.from(sel.selectedOptions).map(o => o.value);
+      if (!businessIds.length) businessIds.push("all");
+      const data = {
+        name, cost,
+        quantity: Number(document.getElementById("fRwQty").value) || 0,
+        businessIds,
+        startDate: document.getElementById("fRwStart").value.trim() || "1403/01/01",
+        endDate: document.getElementById("fRwEnd").value.trim(),
+        status: document.getElementById("fRwStatus").value
+      };
+      if (modalMode === "edit") {
+        const r = rewards.find(x => x.id === editingId);
+        if (r) Object.assign(r, data);
+        showToast("پاداش به‌روزرسانی شد.", "success");
+      } else {
+        data.id = uid("rw");
+        rewards.push(data);
+        showToast("پاداش جدید اضافه شد.", "success");
+      }
+      closeModal();
+      renderRewards();
+    }
+
+    function toggleRewardStatus(id) {
+      const r = rewards.find(x => x.id === id);
+      if (!r) return;
+      r.status = r.status === "active" ? "inactive" : "active";
+      showToast("وضعیت پاداش تغییر کرد.", "success");
+      renderRewards();
+    }
+
+    function deleteReward(id) {
+      if (!confirm("آیا از حذف این پاداش مطمئن هستید؟")) return;
+      rewards = rewards.filter(x => x.id !== id);
+      showToast("پاداش حذف شد.", "success");
+      renderRewards();
+    }
+
+    function openOfferModal(id) {
+      modalEntity = "offer";
+      modalMode = id ? "edit" : "add";
+      editingId = id || null;
+      const o = id ? offers.find(x => x.id === id) : null;
+      const body =
+        '<div class="form-group" style="margin-bottom:12px"><label>توضیح *</label><input type="text" id="fOfDesc" value="' + (o ? o.description : "") + '"></div>' +
+        '<div class="form-row">' +
+          '<div class="form-group"><label>کسب‌وکار منبع</label><select id="fOfSrc">' + bizOptionsHtml(o ? o.sourceBiz : "", false) + '</select></div>' +
+          '<div class="form-group"><label>لیگ واجد شرایط</label><input type="text" id="fOfLeague" value="' + (o ? o.league : "طلایی") + '"></div>' +
+        '</div>' +
+        '<div class="form-row">' +
+          '<div class="form-group"><label>کسب‌وکار مقصد</label><select id="fOfDest">' + bizOptionsHtml(o ? o.destBiz : "", false) + '</select></div>' +
+          '<div class="form-group"><label>حداکثر تعداد</label><input type="number" id="fOfMax" value="' + (o ? o.maxQty : 100) + '" min="1"></div>' +
+        '</div>' +
+        '<div class="form-row">' +
+          '<div class="form-group"><label>تاریخ شروع</label><input type="text" id="fOfStart" value="' + (o ? o.startDate : "1403/01/01") + '"></div>' +
+          '<div class="form-group"><label>تاریخ پایان</label><input type="text" id="fOfEnd" value="' + (o ? o.endDate : "") + '"></div>' +
+        '</div>' +
+        '<div class="form-group"><label>وضعیت</label><select id="fOfStatus">' +
+          '<option value="active"' + (!o || o.status === "active" ? " selected" : "") + '>فعال</option>' +
+          '<option value="inactive"' + (o && o.status === "inactive" ? " selected" : "") + '>غیرفعال</option>' +
+        '</select></div>';
+      const footer =
+        '<button class="btn btn-primary" onclick="saveOffer()">ذخیره</button>' +
+        '<button class="btn btn-secondary" onclick="closeModal()">انصراف</button>';
+      openModal(id ? "ویرایش پیشنهاد" : "افزودن پیشنهاد بین‌کسب‌وکاری", body, footer);
+    }
+
+    function saveOffer() {
+      const desc = document.getElementById("fOfDesc").value.trim();
+      if (!desc) { showToast("توضیح الزامی است.", "error"); return; }
+      const data = {
+        description: desc,
+        sourceBiz: document.getElementById("fOfSrc").value,
+        league: document.getElementById("fOfLeague").value.trim() || "طلایی",
+        destBiz: document.getElementById("fOfDest").value,
+        maxQty: Number(document.getElementById("fOfMax").value) || 100,
+        startDate: document.getElementById("fOfStart").value.trim() || "1403/01/01",
+        endDate: document.getElementById("fOfEnd").value.trim(),
+        status: document.getElementById("fOfStatus").value
+      };
+      if (modalMode === "edit") {
+        const o = offers.find(x => x.id === editingId);
+        if (o) Object.assign(o, data);
+        showToast("پیشنهاد به‌روزرسانی شد.", "success");
+      } else {
+        data.id = uid("of");
+        offers.push(data);
+        showToast("پیشنهاد جدید اضافه شد.", "success");
+      }
+      closeModal();
+      renderRewards();
+    }
+
+    function deleteOffer(id) {
+      if (!confirm("آیا از حذف این پیشنهاد مطمئن هستید؟")) return;
+      offers = offers.filter(x => x.id !== id);
+      showToast("پیشنهاد حذف شد.", "success");
+      renderRewards();
+    }
+
+    /* ================================================================
+       PAGE: CUSTOMERS
+       ================================================================ */
+
+    function renderCustomers() {
+      const q = (document.getElementById("custSearch").value || "").trim().toLowerCase();
+      const bizF = document.getElementById("custBizFilter").value;
+      const stF = document.getElementById("custStatusFilter").value;
+
+      let list = customers.slice();
+      if (q) {
+        list = list.filter(c =>
+          c.fullName.toLowerCase().includes(q) ||
+          c.phone.includes(q) ||
+          c.membershipId.toLowerCase().includes(q)
+        );
+      }
+      if (stF) list = list.filter(c => c.status === stF);
+      // biz filter is soft: show customers that have any balance in that biz (always true in sample)
+
+      const tbody = document.getElementById("customersTable");
+      if (!list.length) {
+        tbody.innerHTML = '<tr><td colspan="7" class="empty">مشتری‌ای یافت نشد</td></tr>';
+        return;
+      }
+      tbody.innerHTML = list.map(c => {
+        // Show first business points as sample
+        const firstBiz = businesses[0];
+        const pts = firstBiz && c.balances[firstBiz.id] != null ? fmt(c.balances[firstBiz.id]) : "—";
+        return '<tr>' +
+          '<td>' + c.fullName + '</td>' +
+          '<td dir="ltr">' + c.phone + '</td>' +
+          '<td dir="ltr">' + c.membershipId + '</td>' +
+          '<td>' + c.regDate + '</td>' +
+          '<td>' + statusBadge(c.status) + '</td>' +
+          '<td>' + pts + (firstBiz ? ' <span style="color:var(--text-muted);font-size:0.75rem">(' + firstBiz.name + ')</span>' : '') + '</td>' +
+          '<td>' +
+            '<button class="btn btn-secondary btn-sm" onclick="viewCustomer(\'' + c.id + '\')">مشاهده</button> ' +
+            '<button class="btn btn-secondary btn-sm" onclick="openCustomerModal(\'' + c.id + '\')">ویرایش</button> ' +
+            '<button class="btn btn-secondary btn-sm" onclick="toggleCustomerStatus(\'' + c.id + '\')">' + (c.status === "active" ? "غیرفعال" : "فعال") + '</button>' +
+          '</td></tr>';
+      }).join("");
+    }
+
+    function viewCustomer(id) {
+      const c = customers.find(x => x.id === id);
+      if (!c) return;
+      let balHtml = businesses.map(b =>
+        '<div class="detail-item"><div class="dl">' + b.name + '</div><div class="dv" style="color:var(--gold)">' +
+        fmt(c.balances[b.id] || 0) + ' امتیاز — ' + (c.leagues[b.id] || "—") + '</div></div>'
+      ).join("");
+      const recentTx = transactions.filter(t => t.customerId === id).slice(0, 5);
+      const txHtml = recentTx.length
+        ? '<table><thead><tr><th>شناسه</th><th>نوع</th><th>امتیاز</th><th>زمان</th><th>وضعیت</th></tr></thead><tbody>' +
+          recentTx.map(t => '<tr><td>' + t.id + '</td><td>' + typeLabel(t.type) + '</td><td>' + fmt(t.points) + '</td><td>' + t.datetime + '</td><td>' + statusBadge(t.status) + '</td></tr>').join("") +
+          '</tbody></table>'
+        : '<div class="empty">تراکنشی یافت نشد</div>';
+
+      const body =
+        '<div class="detail-grid">' +
+          '<div class="detail-item"><div class="dl">نام</div><div class="dv">' + c.fullName + '</div></div>' +
+          '<div class="detail-item"><div class="dl">موبایل</div><div class="dv" dir="ltr">' + c.phone + '</div></div>' +
+          '<div class="detail-item"><div class="dl">شناسه عضویت</div><div class="dv" dir="ltr">' + c.membershipId + '</div></div>' +
+          '<div class="detail-item"><div class="dl">تاریخ ثبت</div><div class="dv">' + c.regDate + '</div></div>' +
+          '<div class="detail-item"><div class="dl">وضعیت</div><div class="dv">' + statusBadge(c.status) + '</div></div>' +
+        '</div>' +
+        '<div class="card-title" style="margin:16px 0 8px">موجودی و لیگ در هر کسب‌وکار</div>' +
+        '<div class="detail-grid">' + balHtml + '</div>' +
+        '<div class="card-title" style="margin:16px 0 8px">تراکنش‌های اخیر</div>' + txHtml;
+
+      const footer = '<button class="btn btn-secondary" onclick="closeModal()">بستن</button>';
+      openModal("پروفایل مشتری", body, footer);
+    }
+
+    function openCustomerModal(id) {
+      modalEntity = "customer";
+      modalMode = id ? "edit" : "add";
+      editingId = id || null;
+      const c = id ? customers.find(x => x.id === id) : null;
+      const body =
+        '<div class="form-row">' +
+          '<div class="form-group"><label>نام کامل *</label><input type="text" id="fCustName" value="' + (c ? c.fullName : "") + '"></div>' +
+          '<div class="form-group"><label>موبایل *</label><input type="text" id="fCustPhone" value="' + (c ? c.phone : "") + '" dir="ltr"></div>' +
+        '</div>' +
+        '<div class="form-row">' +
+          '<div class="form-group"><label>شناسه عضویت</label><input type="text" id="fCustMid" value="' + (c ? c.membershipId : "") + '" dir="ltr" placeholder="خودکار در صورت خالی"></div>' +
+          '<div class="form-group"><label>وضعیت</label><select id="fCustStatus">' +
+            '<option value="active"' + (!c || c.status === "active" ? " selected" : "") + '>فعال</option>' +
+            '<option value="inactive"' + (c && c.status === "inactive" ? " selected" : "") + '>غیرفعال</option>' +
+          '</select></div>' +
+        '</div>';
+      const footer =
+        '<button class="btn btn-primary" onclick="saveCustomer()">ذخیره</button>' +
+        '<button class="btn btn-secondary" onclick="closeModal()">انصراف</button>';
+      openModal(id ? "ویرایش مشتری" : "افزودن مشتری", body, footer);
+    }
+
+    function saveCustomer() {
+      const name = document.getElementById("fCustName").value.trim();
+      const phone = document.getElementById("fCustPhone").value.trim();
+      if (!name || !phone) { showToast("نام و موبایل الزامی است.", "error"); return; }
+      const status = document.getElementById("fCustStatus").value;
+      let mid = document.getElementById("fCustMid").value.trim();
+      if (modalMode === "edit") {
+        const c = customers.find(x => x.id === editingId);
+        if (c) {
+          c.fullName = name;
+          c.phone = phone;
+          c.status = status;
+          if (mid) c.membershipId = mid;
+        }
+        showToast("مشتری به‌روزرسانی شد.", "success");
+      } else {
+        if (!mid) mid = "HM-" + (10000 + customers.length + 1);
+        const balances = {};
+        const leaguesMap = {};
+        businesses.forEach(b => { balances[b.id] = 0; leaguesMap[b.id] = "برنزی"; });
+        customers.push({
+          id: uid("cust"), fullName: name, phone, membershipId: mid,
+          regDate: "1403/08/20", status, balances, leagues: leaguesMap
+        });
+        showToast("مشتری جدید اضافه شد.", "success");
+      }
+      closeModal();
+      renderCustomers();
+    }
+
+    function toggleCustomerStatus(id) {
+      const c = customers.find(x => x.id === id);
+      if (!c) return;
+      c.status = c.status === "active" ? "inactive" : "active";
+      showToast("وضعیت مشتری تغییر کرد.", "success");
+      renderCustomers();
+    }
+
+    /* ================================================================
+       PAGE: EMPLOYEES
+       ================================================================ */
+
+    function renderEmployees() {
+      document.getElementById("employeesTable").innerHTML = employees.map(e =>
+        '<tr>' +
+          '<td>' + e.name + '</td>' +
+          '<td dir="ltr">' + e.phone + '</td>' +
+          '<td>' + bizName(e.businessId) + '</td>' +
+          '<td>' + e.branch + '</td>' +
+          '<td>' + e.role + '</td>' +
+          '<td>' + statusBadge(e.status) + '</td>' +
+          '<td>' +
+            '<button class="btn btn-secondary btn-sm" onclick="openEmployeeModal(\'' + e.id + '\')">ویرایش</button> ' +
+            '<button class="btn btn-secondary btn-sm" onclick="toggleEmployeeStatus(\'' + e.id + '\')">' + (e.status === "active" ? "غیرفعال" : "فعال") + '</button>' +
+          '</td></tr>'
+      ).join("");
+    }
+
+    function openEmployeeModal(id) {
+      modalEntity = "employee";
+      modalMode = id ? "edit" : "add";
+      editingId = id || null;
+      const e = id ? employees.find(x => x.id === id) : null;
+      const roles = ["مدیر کل", "مدیر کسب‌وکار", "سرپرست شعبه", "صندوق‌دار"];
+      const body =
+        '<div class="form-row">' +
+          '<div class="form-group"><label>نام *</label><input type="text" id="fEmpName" value="' + (e ? e.name : "") + '"></div>' +
+          '<div class="form-group"><label>موبایل *</label><input type="text" id="fEmpPhone" value="' + (e ? e.phone : "") + '" dir="ltr"></div>' +
+        '</div>' +
+        '<div class="form-row">' +
+          '<div class="form-group"><label>کسب‌وکار</label><select id="fEmpBiz">' + bizOptionsHtml(e ? e.businessId : "all", true) + '</select></div>' +
+          '<div class="form-group"><label>شعبه</label><input type="text" id="fEmpBranch" value="' + (e ? e.branch : "مرکزی") + '"></div>' +
+        '</div>' +
+        '<div class="form-row">' +
+          '<div class="form-group"><label>نقش</label><select id="fEmpRole">' +
+            roles.map(r => '<option' + (e && e.role === r ? " selected" : "") + '>' + r + '</option>').join("") +
+          '</select></div>' +
+          '<div class="form-group"><label>وضعیت</label><select id="fEmpStatus">' +
+            '<option value="active"' + (!e || e.status === "active" ? " selected" : "") + '>فعال</option>' +
+            '<option value="inactive"' + (e && e.status === "inactive" ? " selected" : "") + '>غیرفعال</option>' +
+          '</select></div>' +
+        '</div>';
+      const footer =
+        '<button class="btn btn-primary" onclick="saveEmployee()">ذخیره</button>' +
+        '<button class="btn btn-secondary" onclick="closeModal()">انصراف</button>';
+      openModal(id ? "ویرایش کارمند" : "افزودن کارمند", body, footer);
+    }
+
+    function saveEmployee() {
+      const name = document.getElementById("fEmpName").value.trim();
+      const phone = document.getElementById("fEmpPhone").value.trim();
+      if (!name || !phone) { showToast("نام و موبایل الزامی است.", "error"); return; }
+      const data = {
+        name, phone,
+        businessId: document.getElementById("fEmpBiz").value,
+        branch: document.getElementById("fEmpBranch").value.trim() || "مرکزی",
+        role: document.getElementById("fEmpRole").value,
+        status: document.getElementById("fEmpStatus").value
+      };
+      if (modalMode === "edit") {
+        const e = employees.find(x => x.id === editingId);
+        if (e) Object.assign(e, data);
+        showToast("کارمند به‌روزرسانی شد.", "success");
+      } else {
+        data.id = uid("emp");
+        employees.push(data);
+        showToast("کارمند جدید اضافه شد.", "success");
+      }
+      closeModal();
+      renderEmployees();
+    }
+
+    function toggleEmployeeStatus(id) {
+      const e = employees.find(x => x.id === id);
+      if (!e) return;
+      e.status = e.status === "active" ? "inactive" : "active";
+      showToast("وضعیت کارمند تغییر کرد.", "success");
+      renderEmployees();
+    }
+
+    /* ================================================================
+       PAGE: TRANSACTIONS
+       ================================================================ */
+
+    function renderTransactions() {
+      const bizF = document.getElementById("txBizFilter").value;
+      const typeF = document.getElementById("txTypeFilter").value;
+      const stF = document.getElementById("txStatusFilter").value;
+      const custF = (document.getElementById("txCustFilter").value || "").trim().toLowerCase();
+
+      let list = transactions.slice();
+      if (bizF) list = list.filter(t => t.businessId === bizF);
+      if (typeF) list = list.filter(t => t.type === typeF);
+      if (stF) list = list.filter(t => t.status === stF);
+      if (custF) list = list.filter(t => t.customerName.toLowerCase().includes(custF));
+
+      document.getElementById("transactionsTable").innerHTML = list.map(t =>
+        '<tr>' +
+          '<td dir="ltr">' + t.id + '</td>' +
+          '<td>' + t.customerName + '</td>' +
+          '<td>' + bizName(t.businessId) + '</td>' +
+          '<td>' + typeLabel(t.type) + '</td>' +
+          '<td>' + (t.amount ? fmt(t.amount) + " تومان" : "—") + '</td>' +
+          '<td style="color:' + (t.points >= 0 ? "var(--success)" : "var(--error)") + '">' + (t.points >= 0 ? "+" : "") + fmt(t.points) + '</td>' +
+          '<td>' + t.employee + '</td>' +
+          '<td>' + t.datetime + '</td>' +
+          '<td>' + statusBadge(t.status) + '</td>' +
+          '<td><button class="btn btn-secondary btn-sm" onclick="viewTransaction(\'' + t.id + '\')">جزئیات</button></td>' +
+        '</tr>'
+      ).join("") || '<tr><td colspan="10" class="empty">تراکنشی یافت نشد</td></tr>';
+    }
+
+    function viewTransaction(id) {
+      const t = transactions.find(x => x.id === id);
+      if (!t) return;
+      const body =
+        '<div class="detail-grid">' +
+          '<div class="detail-item"><div class="dl">شناسه</div><div class="dv" dir="ltr">' + t.id + '</div></div>' +
+          '<div class="detail-item"><div class="dl">مشتری</div><div class="dv">' + t.customerName + '</div></div>' +
+          '<div class="detail-item"><div class="dl">کسب‌وکار</div><div class="dv">' + bizName(t.businessId) + '</div></div>' +
+          '<div class="detail-item"><div class="dl">نوع</div><div class="dv">' + typeLabel(t.type) + '</div></div>' +
+          '<div class="detail-item"><div class="dl">مبلغ</div><div class="dv">' + (t.amount ? fmt(t.amount) + " تومان" : "—") + '</div></div>' +
+          '<div class="detail-item"><div class="dl">امتیاز</div><div class="dv">' + fmt(t.points) + '</div></div>' +
+          '<div class="detail-item"><div class="dl">کارمند</div><div class="dv">' + t.employee + '</div></div>' +
+          '<div class="detail-item"><div class="dl">زمان</div><div class="dv">' + t.datetime + '</div></div>' +
+          '<div class="detail-item"><div class="dl">وضعیت</div><div class="dv">' + statusBadge(t.status) + '</div></div>' +
+        '</div>';
+      openModal("جزئیات تراکنش", body, '<button class="btn btn-secondary" onclick="closeModal()">بستن</button>');
+    }
+
+    /* ================================================================
+       PAGE: REPORTS
+       ================================================================ */
+
+    function renderReports() {
+      const bizF = document.getElementById("reportBizFilter").value;
+      const list = bizF ? businesses.filter(b => b.id === bizF) : businesses;
+
+      const totalCust = list.reduce((s, b) => s + b.customers, 0);
+      const totalTx = list.reduce((s, b) => s + b.transactions, 0);
+      const totalIssued = list.reduce((s, b) => s + b.pointsIssued, 0);
+      const totalRedeemed = list.reduce((s, b) => s + b.pointsRedeemed, 0);
+
+      document.getElementById("reportStats").innerHTML =
+        cardStat("مشتریان", fmt(totalCust)) +
+        cardStat("حجم خرید (تراکنش)", fmt(totalTx)) +
+        cardStat("امتیاز صادرشده", fmt(totalIssued), true) +
+        cardStat("امتیاز مصرف‌شده", fmt(totalRedeemed), true) +
+        cardStat("نرخ مصرف", (totalIssued ? Math.round(totalRedeemed / totalIssued * 100) : 0) + "٪");
+
+      // League distribution (approximate from sample customers)
+      const leagueCounts = { "برنزی": 0, "نقره‌ای": 0, "طلایی": 0, "ویژه": 0 };
+      customers.forEach(c => {
+        const targetBiz = bizF || businesses[0].id;
+        const lg = c.leagues[targetBiz] || "برنزی";
+        if (leagueCounts[lg] != null) leagueCounts[lg]++;
+        else leagueCounts[lg] = 1;
+      });
+      const maxLg = Math.max(...Object.values(leagueCounts), 1);
+      document.getElementById("leagueDistChart").innerHTML = Object.keys(leagueCounts).map(k =>
+        barRow(k, leagueCounts[k], maxLg)
+      ).join("");
+
+      const maxIss = Math.max(...list.map(b => b.pointsIssued), 1);
+      document.getElementById("reportBizChart").innerHTML = list.map(b =>
+        barRow(b.name, b.pointsIssued, maxIss)
+      ).join("");
+
+      document.getElementById("reportTable").innerHTML = list.map(b => {
+        const rate = b.pointsIssued ? Math.round(b.pointsRedeemed / b.pointsIssued * 100) : 0;
+        return '<tr>' +
+          '<td>' + b.name + '</td>' +
+          '<td>' + fmt(b.customers) + '</td>' +
+          '<td>' + fmt(b.transactions) + '</td>' +
+          '<td>' + fmt(b.pointsIssued) + '</td>' +
+          '<td>' + fmt(b.pointsRedeemed) + '</td>' +
+          '<td>' + rate + '٪</td></tr>';
+      }).join("");
+    }
+
+    function exportReportCSV() {
+      const bizF = document.getElementById("reportBizFilter").value;
+      const list = bizF ? businesses.filter(b => b.id === bizF) : businesses;
+      let csv = "\uFEFFکسب‌وکار,مشتریان,خریدها,امتیاز صادره,امتیاز مصرفی,نرخ مصرف\n";
+      list.forEach(b => {
+        const rate = b.pointsIssued ? Math.round(b.pointsRedeemed / b.pointsIssued * 100) : 0;
+        csv += b.name + "," + b.customers + "," + b.transactions + "," + b.pointsIssued + "," + b.pointsRedeemed + "," + rate + "%\n";
+      });
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "hamrah_report.csv";
+      a.click();
+      URL.revokeObjectURL(url);
+      showToast("فایل CSV دانلود شد.", "success");
+    }
+
+    /* ================================================================
+       PAGE: SETTINGS
+       ================================================================ */
+
+    function loadSettingsForm() {
+      document.getElementById("setPlatformName").value = settings.platformName;
+      document.getElementById("setCurrency").value = settings.currency;
+      document.getElementById("setPointsExpiry").value = settings.pointsExpiry;
+      document.getElementById("setCustReg").value = settings.custReg;
+      document.getElementById("setEmpPurchase").value = settings.empPurchase;
+      document.getElementById("setRedemption").value = settings.redemption;
+      document.getElementById("setNotifPref").value = settings.notifPref;
+    }
+
+    function saveSettings() {
+      settings.platformName = document.getElementById("setPlatformName").value.trim() || "رادوان همراه";
+      settings.currency = document.getElementById("setCurrency").value.trim() || "تومان";
+      settings.pointsExpiry = Number(document.getElementById("setPointsExpiry").value) || 365;
+      settings.custReg = document.getElementById("setCustReg").value;
+      settings.empPurchase = document.getElementById("setEmpPurchase").value;
+      settings.redemption = document.getElementById("setRedemption").value;
+      settings.notifPref = document.getElementById("setNotifPref").value;
+      showToast("تنظیمات ذخیره شد (فقط در حافظه جلسه).", "success");
+    }
+
+    /* ================================================================
+       INIT
+       ================================================================ */
+
+    document.addEventListener("DOMContentLoaded", function () {
+      populateBizSelects();
+      renderOverview();
+    });
+  </script>
+</body>
+</html>

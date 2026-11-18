@@ -1,0 +1,23 @@
+import fs from "fs"; import vm from "vm";
+const mem=new Map();const localStorage={getItem:k=>mem.has(k)?mem.get(k):null,setItem:(k,v)=>mem.set(k,String(v)),removeItem:k=>mem.delete(k),clear:()=>mem.clear()};
+const sandbox={window:{},localStorage,console};sandbox.window=sandbox;sandbox.globalThis=sandbox;
+vm.createContext(sandbox);vm.runInContext(fs.readFileSync(new URL("./hamrah-core.js",import.meta.url),"utf8"),sandbox);
+const HC=sandbox.HamrahCore;let pass=0,fail=0;
+function a(n,v){if(v){pass++;console.log("PASS",n)}else{fail++;console.log("FAIL",n)}}
+let store=HC.loadStore().store;
+a("lookup seeded mobile",HC.findCustomer(store,"09123456789")?.id==="cust_1");
+a("lookup Persian digits",HC.findCustomer(store,"۰۹۱۲۳۴۵۶۷۸۹")?.id==="cust_1");
+a("lookup membership",HC.findCustomer(store,"hm-10245")?.id==="cust_1");
+a("lookup QR absent safely",HC.findCustomer(store,"not-a-qr")===null);
+let bad=HC.createCustomer(store,{fullName:"نام آزمایشی",phone:"123"});a("reject invalid phone",!bad.ok);
+bad=HC.createCustomer(store,{fullName:"نام آزمایشی",phone:"09123456789"});a("reject duplicate phone",!bad.ok);
+let made=HC.createCustomer(store,{fullName:"نیما فرهمند",phone:"۰۹۱۲۲۲۲۲۲۲۲"});a("create customer",made.ok);
+a("generated membership",made.customer.membershipId==="HM-10250");
+a("balances initialized for every business",Object.keys(made.customer.balances).length===7);
+a("new customer searchable by phone",HC.findCustomer(store,"+989122222222")?.id===made.customer.id);
+let upd=HC.updateCustomer(store,made.customer.id,{fullName:"نیما فرهمند نو"});a("update name",upd.ok&&upd.customer.fullName==="نیما فرهمند نو");
+let dup=HC.updateCustomer(store,made.customer.id,{phone:"09123456789"});a("prevent duplicate phone on update",!dup.ok);
+let off=HC.setCustomerStatus(store,made.customer.id,"inactive");a("deactivate customer",off.ok&&off.customer.status==="inactive");
+a("inactive blocks transactions",!HC.applyTransaction(store,{customerId:made.customer.id,businessId:"biz_1",pointsDelta:10,type:"purchase"}).ok);
+let on=HC.setCustomerStatus(store,made.customer.id,"active");a("reactivate customer",on.ok&&on.customer.status==="active");
+console.log(`Identity tests: ${pass} passed, ${fail} failed`);if(fail)process.exit(1);

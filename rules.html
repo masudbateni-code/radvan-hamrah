@@ -1,0 +1,1302 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>رادوان همراه | ویرایشگر پیشرفته قوانین</title>
+  <style>
+    :root {
+      --bg: #0c1017;
+      --bg2: #141b26;
+      --card: #1a2332;
+      --side: #0f1520;
+      --input: #121a24;
+      --hover: #243044;
+      --border: #2a3548;
+      --text: #e8edf5;
+      --text2: #9aa8bc;
+      --muted: #6b7a90;
+      --gold: #d4a84b;
+      --gold-h: #e0b85c;
+      --gold-d: rgba(212,168,75,0.12);
+      --ok: #3dbf7a;
+      --ok-bg: rgba(61,191,122,0.12);
+      --err: #e55c5c;
+      --err-bg: rgba(229,92,92,0.12);
+      --warn: #e09a3e;
+      --info: #4a9eff;
+      --radius: 8px;
+      --rsm: 6px;
+      --side-w: 230px;
+      --header-h: 54px;
+      --font: "Tahoma","Segoe UI",Arial,sans-serif;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:1.55;min-height:100vh;direction:rtl;overflow-x:hidden}
+    .app{display:flex;min-height:100vh}
+    .sidebar{width:var(--side-w);background:var(--side);border-left:1px solid var(--border);position:fixed;top:0;right:0;bottom:0;z-index:100;display:flex;flex-direction:column;transition:transform .25s}
+    .brand{height:var(--header-h);display:flex;align-items:center;gap:8px;padding:0 14px;border-bottom:1px solid var(--border);flex-shrink:0}
+    .brand .logo{font-size:1.3rem;font-weight:700;color:var(--gold)}
+    .brand .sub{font-size:.72rem;color:var(--muted)}
+    .nav{flex:1;overflow-y:auto;padding:6px 0}
+    .nav-item{display:flex;align-items:center;gap:8px;padding:10px 14px;color:var(--text2);cursor:pointer;border:none;background:transparent;width:100%;font-family:inherit;font-size:.88rem;text-align:right;border-right:3px solid transparent;transition:background .15s,color .15s}
+    .nav-item:hover{background:var(--hover);color:var(--text)}
+    .nav-item.active{background:var(--gold-d);color:var(--gold);border-right-color:var(--gold);font-weight:600}
+    .main{flex:1;margin-right:var(--side-w);display:flex;flex-direction:column;min-height:100vh}
+    .header{height:var(--header-h);background:var(--bg2);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 20px;position:sticky;top:0;z-index:50}
+    .header-title{font-size:1.05rem;font-weight:600}
+    .header-left{display:flex;align-items:center;gap:12px;font-size:.85rem;color:var(--text2)}
+    .menu-btn{display:none;background:transparent;border:1px solid var(--border);color:var(--text2);width:34px;height:34px;border-radius:var(--rsm);cursor:pointer;font-size:1rem}
+    .content{flex:1;padding:20px;overflow-y:auto}
+    .page{display:none}.page.active{display:block}
+    .page-desc{color:var(--text2);font-size:.88rem;margin-bottom:18px}
+    .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:18px}
+    .stat{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:14px}
+    .stat .lbl{font-size:.78rem;color:var(--muted);margin-bottom:4px}
+    .stat .val{font-size:1.3rem;font-weight:700}
+    .stat .val.g{color:var(--gold)}
+    .card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:14px}
+    .card-h{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px}
+    .card-t{font-size:.95rem;font-weight:600;color:var(--gold)}
+    .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+    @media(max-width:900px){.grid2{grid-template-columns:1fr}}
+    .table-wrap{overflow-x:auto}
+    table{width:100%;border-collapse:collapse;font-size:.85rem}
+    th,td{padding:9px 10px;text-align:right;border-bottom:1px solid var(--border);white-space:nowrap}
+    th{color:var(--muted);font-weight:600;font-size:.78rem;background:var(--bg2)}
+    tr:hover td{background:var(--hover)}
+    .badge{display:inline-block;padding:2px 9px;border-radius:12px;font-size:.72rem;font-weight:500}
+    .b-ok{background:var(--ok-bg);color:var(--ok)}
+    .b-err{background:var(--err-bg);color:var(--err)}
+    .b-warn{background:rgba(224,154,62,.15);color:var(--warn)}
+    .b-info{background:rgba(74,158,255,.15);color:var(--info)}
+    .b-gold{background:var(--gold-d);color:var(--gold)}
+    .b-muted{background:rgba(107,122,144,.2);color:var(--muted)}
+    .btn{display:inline-flex;align-items:center;justify-content:center;gap:5px;padding:7px 14px;border:none;border-radius:var(--rsm);font-family:inherit;font-size:.85rem;cursor:pointer;transition:background .15s,opacity .15s;white-space:nowrap}
+    .btn:disabled{opacity:.45;cursor:not-allowed}
+    .btn-p{background:var(--gold);color:#1a1a1a;font-weight:600}
+    .btn-p:hover:not(:disabled){background:var(--gold-h)}
+    .btn-s{background:var(--input);border:1px solid var(--border);color:var(--text)}
+    .btn-s:hover:not(:disabled){border-color:var(--gold);color:var(--gold)}
+    .btn-d{background:var(--err-bg);border:1px solid var(--err);color:var(--err)}
+    .btn-d:hover:not(:disabled){background:var(--err);color:#fff}
+    .btn-sm{padding:4px 9px;font-size:.78rem}
+    .actions{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+    .filters{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;align-items:flex-end}
+    .fg{display:flex;flex-direction:column;gap:3px;min-width:130px}
+    .fg label{font-size:.75rem;color:var(--text2)}
+    .fg input,.fg select,.fg textarea{background:var(--input);border:1px solid var(--border);color:var(--text);padding:8px 10px;border-radius:var(--rsm);font-family:inherit;font-size:.88rem;width:100%}
+    .fg input:focus,.fg select:focus,.fg textarea:focus{outline:none;border-color:var(--gold)}
+    .fg textarea{resize:vertical;min-height:60px}
+    .form-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-bottom:12px}
+    .cond-box{background:var(--bg2);border:1px solid var(--border);border-radius:var(--rsm);padding:12px;margin-bottom:8px}
+    .cond-row{display:flex;flex-wrap:wrap;gap:8px;align-items:flex-end;margin-bottom:8px}
+    .cond-row .fg{flex:1;min-width:120px}
+    .logic-toggle{display:inline-flex;gap:0;border:1px solid var(--border);border-radius:var(--rsm);overflow:hidden}
+    .logic-toggle button{background:var(--input);border:none;color:var(--text2);padding:6px 12px;cursor:pointer;font-family:inherit;font-size:.8rem}
+    .logic-toggle button.active{background:var(--gold-d);color:var(--gold);font-weight:600}
+    .sim-result{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-top:14px}
+    .sim-result h4{color:var(--gold);margin-bottom:10px;font-size:.95rem}
+    .sim-line{padding:4px 0;font-size:.88rem;border-bottom:1px solid var(--border)}
+    .sim-line:last-child{border-bottom:none}
+    .sim-match{color:var(--ok)}
+    .sim-reject{color:var(--err)}
+    .sim-final{font-size:1.15rem;font-weight:700;color:var(--gold);margin-top:10px}
+    .prio-list{display:flex;flex-direction:column;gap:8px}
+    .prio-item{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--rsm)}
+    .prio-num{width:28px;height:28px;border-radius:50%;background:var(--gold-d);color:var(--gold);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.85rem;flex-shrink:0}
+    .modal-ov{position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:200;display:none;align-items:center;justify-content:center;padding:14px}
+    .modal-ov.open{display:flex}
+    .modal{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);width:100%;max-width:640px;max-height:90vh;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,.4)}
+    .modal-h{display:flex;justify-content:space-between;align-items:center;padding:14px 18px;border-bottom:1px solid var(--border)}
+    .modal-t{font-size:1rem;font-weight:600;color:var(--gold)}
+    .modal-x{background:transparent;border:none;color:var(--muted);font-size:1.3rem;cursor:pointer}
+    .modal-x:hover{color:var(--text)}
+    .modal-b{padding:18px}
+    .modal-f{display:flex;gap:8px;padding:12px 18px;border-top:1px solid var(--border)}
+    .toast-c{position:fixed;bottom:18px;left:18px;z-index:300;display:flex;flex-direction:column;gap:6px}
+    .toast{background:var(--card);border:1px solid var(--border);border-radius:var(--rsm);padding:10px 16px;font-size:.85rem;box-shadow:0 4px 16px rgba(0,0,0,.35);animation:in .25s ease;max-width:340px}
+    .toast.ok{border-color:var(--ok);color:var(--ok)}
+    .toast.err{border-color:var(--err);color:var(--err)}
+    .toast.info{border-color:var(--gold);color:var(--gold)}
+    @keyframes in{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+    .empty{text-align:center;padding:28px;color:var(--muted);font-size:.88rem}
+    .side-ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:99}
+    .side-ov.show{display:block}
+    @media(max-width:768px){
+      .sidebar{transform:translateX(100%)}
+      .sidebar.open{transform:translateX(0)}
+      .main{margin-right:0}
+      .menu-btn{display:flex;align-items:center;justify-content:center}
+      .content{padding:14px}
+    }
+    .explain{font-size:.82rem;color:var(--text2);background:var(--bg2);border-radius:var(--rsm);padding:10px;margin-top:8px;line-height:1.6}
+    .tag{display:inline-block;padding:1px 7px;border-radius:4px;font-size:.72rem;background:var(--gold-d);color:var(--gold);margin-left:4px}
+  </style>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet">
+
+<style id="hamrah-vazirmatn-override">
+  html, body, body * { font-family: "Vazirmatn", Tahoma, "Segoe UI", Arial, sans-serif !important; }
+</style>
+</head>
+<body>
+  <div class="side-ov" id="sideOv" onclick="closeSide()"></div>
+  <div class="app">
+    <aside class="sidebar" id="sidebar">
+      <div class="brand">
+        <span class="logo">RADVAN HAMRAH</span>
+        <span class="sub">ویرایشگر قوانین</span>
+      </div>
+      <nav class="nav">
+        <button class="nav-item active" data-page="overview" onclick="go('overview')"><span>▣</span> نمای کلی قوانین</button>
+        <button class="nav-item" data-page="points" onclick="go('points')"><span>⚙</span> قوانین امتیازدهی</button>
+        <button class="nav-item" data-page="bonus" onclick="go('bonus')"><span>★</span> قوانین تشویقی</button>
+        <button class="nav-item" data-page="conditions" onclick="go('conditions')"><span>◇</span> شرایط و محدودیت‌ها</button>
+        <button class="nav-item" data-page="cross" onclick="go('cross')"><span>⇄</span> قوانین بین‌کسب‌وکار</button>
+        <button class="nav-item" data-page="priority" onclick="go('priority')"><span>☰</span> اولویت و تداخل</button>
+        <button class="nav-item" data-page="simulator" onclick="go('simulator')"><span>▶</span> شبیه‌ساز قوانین</button>
+        <button class="nav-item" data-page="history" onclick="go('history')"><span>⏱</span> تاریخچه تغییرات</button>
+      </nav>
+    </aside>
+
+    <div class="main">
+      <header class="header">
+        <div style="display:flex;align-items:center;gap:10px">
+          <button class="menu-btn" onclick="toggleSide()">☰</button>
+          <span class="header-title" id="pageTitle">نمای کلی قوانین</span>
+        </div>
+        <div class="header-left">
+          <span>مدیر: <strong style="color:var(--text)">کوروش مهرگان</strong></span>
+        </div>
+      </header>
+
+      <div class="content">
+        <!-- OVERVIEW -->
+        <div class="page active" id="page-overview">
+<section id="demoCampaigns" style="margin:18px 0 22px;padding:18px;border:1px solid #8d713e;border-radius:12px;background:linear-gradient(135deg,#1f2936,#141b26)">
+ <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:14px"><h2 style="font-size:19px;color:#e6b95a">🎁 نمونه کمپین‌های وفاداری و همکاری میان کسب‌وکارها</h2><span style="background:#392f20;color:#f5d697;border-radius:16px;padding:4px 10px;font-size:11px">سناریوهای پیشنهادی MVP</span></div>
+ <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px">
+  <article style="border:1px solid #43506a;background:#1a2332;border-radius:10px;padding:14px"><div style="font-size:23px;margin-bottom:7px">💍 → 🍽️</div><strong style="font-size:14px;color:#f4deb0">خرید زیورآلات ← یک وعده غذا با ۶۰٪ تخفیف</strong><p style="font-size:12px;color:#afbdd0;margin-top:7px">با خرید هر قطعه زیورآلات از «طلافروشی دینور»، یک ووچر یک‌وعده‌ای رستوران سورن با تخفیف ۶۰٪ صادر شود.</p></article>
+  <article style="border:1px solid #43506a;background:#1a2332;border-radius:10px;padding:14px"><div style="font-size:23px;margin-bottom:7px">🍽️ × ۵ → ☕🍰</div><strong style="font-size:14px;color:#f4deb0">۵ وعده غذا ← ۲ قهوه و ۱ کیک با ۳۰٪ تخفیف</strong><p style="font-size:12px;color:#afbdd0;margin-top:7px">پس از پنج وعده ثبت‌شده در رستوران سورن، پیشنهاد ترکیبی کافه بیکری بیکرسو فعال شود.</p></article>
+  <article style="border:1px solid #43506a;background:#1a2332;border-radius:10px;padding:14px"><div style="font-size:23px;margin-bottom:7px">☕ × ۱۰ → 🍽️</div><strong style="font-size:14px;color:#f4deb0">۱۰ قهوه ← یک وعده غذا با ۲۰٪ تخفیف</strong><p style="font-size:12px;color:#afbdd0;margin-top:7px">با ثبت ده قهوه در کافه بیکری بیکرسو، یک تخفیف یک‌وعده‌ای در رستوران سورن فعال شود.</p></article>
+ </div>
+ <p style="margin-top:13px;font-size:11px;color:#aab6c7">توجه: این سه کمپین برای نمایش مفهوم محصول هستند. اجرای خودکار آن‌ها به ثبت اقلام سفارش، شمارش دفعات خرید، صدور ووچر و اتصال داده‌های کسب‌وکارها نیاز دارد. موتور قوانین فعلی این شرط‌ها را به‌طور کامل اجرا نمی‌کند.</p>
+</section>
+          <p class="page-desc">خلاصه وضعیت قوانین وفاداری پلتفرم رادوان همراه.</p>
+          <div class="stats" id="ovStats"></div>
+          <div class="actions">
+            <button class="btn btn-p" onclick="openRuleModal()">+ قانون جدید</button>
+          </div>
+          <div class="filters">
+            <div class="fg"><label>کسب‌وکار</label><select id="fBiz" onchange="renderOverview()"><option value="">همه</option></select></div>
+            <div class="fg"><label>نوع</label><select id="fType" onchange="renderOverview()">
+              <option value="">همه</option>
+              <option value="points">امتیازدهی</option>
+              <option value="bonus">تشویقی</option>
+              <option value="cross">بین‌کسب‌وکار</option>
+            </select></div>
+            <div class="fg"><label>وضعیت</label><select id="fStatus" onchange="renderOverview()">
+              <option value="">همه</option>
+              <option value="active">فعال</option>
+              <option value="inactive">غیرفعال</option>
+              <option value="scheduled">زمان‌بندی‌شده</option>
+            </select></div>
+          </div>
+          <div class="card">
+            <div class="table-wrap">
+              <table>
+                <thead><tr>
+                  <th>نام قانون</th><th>نوع</th><th>کسب‌وکار</th><th>وضعیت</th>
+                  <th>شروع</th><th>پایان</th><th>اولویت</th><th>آخرین ویرایش</th><th>عملیات</th>
+                </tr></thead>
+                <tbody id="ovTable"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- POINTS RULES -->
+        <div class="page" id="page-points">
+          <p class="page-desc">تعریف قوانین محاسبه امتیاز بر اساس مبلغ، ثابت، ضریب و غیره.</p>
+          <div class="actions">
+            <button class="btn btn-p" onclick="openRuleModal('points')">+ قانون امتیازدهی</button>
+          </div>
+          <div class="card">
+            <div class="table-wrap">
+              <table>
+                <thead><tr>
+                  <th>نام</th><th>روش محاسبه</th><th>کسب‌وکار</th><th>مقدار</th>
+                  <th>شرایط</th><th>اولویت</th><th>وضعیت</th><th>عملیات</th>
+                </tr></thead>
+                <tbody id="pointsTable"></tbody>
+              </table>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-h"><span class="card-t">روش‌های محاسبه پشتیبانی‌شده</span></div>
+            <div id="methodsList" style="font-size:.88rem;color:var(--text2)"></div>
+          </div>
+        </div>
+
+        <!-- BONUS RULES -->
+        <div class="page" id="page-bonus">
+          <p class="page-desc">قوانین تشویقی: تولد، اولین خرید، مناسبت‌ها و پاداش‌های ویژه.</p>
+          <div class="actions">
+            <button class="btn btn-p" onclick="openRuleModal('bonus')">+ قانون تشویقی</button>
+          </div>
+          <div class="card">
+            <div class="table-wrap">
+              <table>
+                <thead><tr>
+                  <th>نام</th><th>رویداد محرک</th><th>کسب‌وکار</th><th>پاداش</th>
+                  <th>محدودیت استفاده</th><th>وضعیت</th><th>عملیات</th>
+                </tr></thead>
+                <tbody id="bonusTable"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- CONDITIONS -->
+        <div class="page" id="page-conditions">
+          <p class="page-desc">ساخت شرایط ترکیبی با منطق AND/OR برای قوانین. شرایط در فرم ایجاد/ویرایش قانون نیز قابل تعریف هستند.</p>
+          <div class="card">
+            <div class="card-h"><span class="card-t">انواع شرایط پشتیبانی‌شده</span></div>
+            <div class="grid2" id="condTypesList"></div>
+          </div>
+          <div class="card">
+            <div class="card-h"><span class="card-t">نمونه قانون با شرایط</span></div>
+            <div class="explain" id="condExample"></div>
+          </div>
+          <div class="actions" style="margin-top:14px">
+            <button class="btn btn-p" onclick="openRuleModal()">ایجاد قانون با شرایط</button>
+          </div>
+        </div>
+
+        <!-- CROSS-BUSINESS -->
+        <div class="page" id="page-cross">
+<section id="demoCampaignsCross" style="margin:18px 0 22px;padding:18px;border:1px solid #8d713e;border-radius:12px;background:linear-gradient(135deg,#1f2936,#141b26)">
+ <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:14px"><h2 style="font-size:19px;color:#e6b95a">🎁 نمونه کمپین‌های وفاداری و همکاری میان کسب‌وکارها</h2><span style="background:#392f20;color:#f5d697;border-radius:16px;padding:4px 10px;font-size:11px">سناریوهای پیشنهادی MVP</span></div>
+ <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px">
+  <article style="border:1px solid #43506a;background:#1a2332;border-radius:10px;padding:14px"><div style="font-size:23px;margin-bottom:7px">💍 → 🍽️</div><strong style="font-size:14px;color:#f4deb0">خرید زیورآلات ← یک وعده غذا با ۶۰٪ تخفیف</strong><p style="font-size:12px;color:#afbdd0;margin-top:7px">با خرید هر قطعه زیورآلات از «طلافروشی دینور»، یک ووچر یک‌وعده‌ای رستوران سورن با تخفیف ۶۰٪ صادر شود.</p></article>
+  <article style="border:1px solid #43506a;background:#1a2332;border-radius:10px;padding:14px"><div style="font-size:23px;margin-bottom:7px">🍽️ × ۵ → ☕🍰</div><strong style="font-size:14px;color:#f4deb0">۵ وعده غذا ← ۲ قهوه و ۱ کیک با ۳۰٪ تخفیف</strong><p style="font-size:12px;color:#afbdd0;margin-top:7px">پس از پنج وعده ثبت‌شده در رستوران سورن، پیشنهاد ترکیبی کافه بیکری بیکرسو فعال شود.</p></article>
+  <article style="border:1px solid #43506a;background:#1a2332;border-radius:10px;padding:14px"><div style="font-size:23px;margin-bottom:7px">☕ × ۱۰ → 🍽️</div><strong style="font-size:14px;color:#f4deb0">۱۰ قهوه ← یک وعده غذا با ۲۰٪ تخفیف</strong><p style="font-size:12px;color:#afbdd0;margin-top:7px">با ثبت ده قهوه در کافه بیکری بیکرسو، یک تخفیف یک‌وعده‌ای در رستوران سورن فعال شود.</p></article>
+ </div>
+ <p style="margin-top:13px;font-size:11px;color:#aab6c7">توجه: این سه کمپین برای نمایش مفهوم محصول هستند. اجرای خودکار آن‌ها به ثبت اقلام سفارش، شمارش دفعات خرید، صدور ووچر و اتصال داده‌های کسب‌وکارها نیاز دارد. موتور قوانین فعلی این شرط‌ها را به‌طور کامل اجرا نمی‌کند.</p>
+</section>
+          <p class="page-desc">قوانینی که فعالیت در یک کسب‌وکار، مزیت در کسب‌وکار دیگر ایجاد می‌کند.</p>
+          <div class="actions">
+            <button class="btn btn-p" onclick="openRuleModal('cross')">+ قانون بین‌کسب‌وکار</button>
+          </div>
+          <div class="card">
+            <div class="table-wrap">
+              <table>
+                <thead><tr>
+                  <th>نام</th><th>منبع</th><th>شرط منبع</th><th>مقصد</th>
+                  <th>نوع مزیت</th><th>مقدار</th><th>وضعیت</th><th>عملیات</th>
+                </tr></thead>
+                <tbody id="crossTable"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- PRIORITY -->
+        <div class="page" id="page-priority">
+          <p class="page-desc">مدیریت اولویت و سیاست تداخل قوانین هنگام اعمال هم‌زمان.</p>
+          <div class="card">
+            <div class="card-h"><span class="card-t">سیاست تداخل فعلی</span></div>
+            <div class="form-row">
+              <div class="fg">
+                <label>سیاست پیش‌فرض</label>
+                <select id="conflictPolicy" onchange="onPolicyChange()">
+                  <option value="all">اعمال همه قوانین سازگار</option>
+                  <option value="highest">فقط بالاترین اولویت</option>
+                  <option value="per_category">بالاترین در هر دسته</option>
+                  <option value="exclusive">فقط اگر قانون دیگری اعمال نشود</option>
+                </select>
+              </div>
+            </div>
+            <div class="explain" id="policyExplain"></div>
+          </div>
+          <div class="card">
+            <div class="card-h"><span class="card-t">ترتیب اولویت قوانین فعال (کم‌تر = بالاتر)</span></div>
+            <div class="prio-list" id="prioList"></div>
+          </div>
+          <div class="card">
+            <div class="card-h"><span class="card-t">مثال تداخل</span></div>
+            <div class="explain" id="conflictExample"></div>
+          </div>
+        </div>
+
+        <!-- SIMULATOR -->
+        <div class="page" id="page-simulator">
+          <p class="page-desc">آزمایش قوانین قبل از فعال‌سازی. نتایج از قوانین واقعی پیکربندی‌شده محاسبه می‌شوند.</p>
+          <div class="card">
+            <div class="card-h"><span class="card-t">پارامترهای شبیه‌سازی</span></div>
+            <div class="form-row">
+              <div class="fg"><label>مشتری</label><select id="simCust"></select></div>
+              <div class="fg"><label>کسب‌وکار</label><select id="simBiz"></select></div>
+              <div class="fg"><label>مبلغ خرید (تومان)</label><input type="number" id="simAmount" value="2500000" min="0"></div>
+              <div class="fg"><label>تاریخ</label><input type="date" id="simDate"></div>
+            </div>
+            <div class="form-row">
+              <div class="fg"><label>ساعت</label><input type="time" id="simTime" value="14:30"></div>
+              <div class="fg"><label>لیگ مشتری</label><select id="simLeague">
+                <option value="برنزی">برنزی</option>
+                <option value="نقره‌ای">نقره‌ای</option>
+                <option value="طلایی" selected>طلایی</option>
+                <option value="ویژه">ویژه</option>
+              </select></div>
+              <div class="fg"><label>دسته‌بندی محصول (اختیاری)</label><input type="text" id="simCategory" placeholder="مثلاً نوشیدنی"></div>
+              <div class="fg"><label>سناریوی نمونه</label>
+                <select id="simScenario" onchange="loadScenario()">
+                  <option value="">انتخاب کنید...</option>
+                  <option value="1">خرید عادی کافه بیکری بیکرسو</option>
+                  <option value="2">پنجشنبه + طلایی</option>
+                  <option value="3">تولد مشتری</option>
+                </select>
+              </div>
+            </div>
+            <button class="btn btn-p" onclick="runSimulation()">اجرای شبیه‌سازی</button>
+          </div>
+          <div id="simOutput"></div>
+        </div>
+
+        <!-- HISTORY -->
+        <div class="page" id="page-history">
+          <p class="page-desc">تاریخچه تغییرات قوانین در این جلسه (در حافظه مرورگر).</p>
+          <div class="card">
+            <div class="table-wrap">
+              <table>
+                <thead><tr>
+                  <th>زمان</th><th>قانون</th><th>عملیات</th><th>مدیر</th><th>توضیح</th>
+                </tr></thead>
+                <tbody id="histTable"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-ov" id="modalOv">
+    <div class="modal">
+      <div class="modal-h">
+        <span class="modal-t" id="modalTitle">عنوان</span>
+        <button class="modal-x" onclick="closeModal()">&times;</button>
+      </div>
+      <div class="modal-b" id="modalBody"></div>
+      <div class="modal-f" id="modalFooter"></div>
+    </div>
+  </div>
+  <div class="toast-c" id="toasts"></div>
+
+  <script>
+    /* ================================================================
+       CENTRAL DATA – edit these to customize
+       ================================================================ */
+
+    const BUSINESSES = [
+      { id: "biz_1", name: "کافه بیکری بیکرسو" },
+      { id: "biz_2", name: "رستوران سورن" },
+      { id: "biz_3", name: "طلافروشی دینور" },
+      { id: "biz_4", name: "صرافی آراکس" },
+      { id: "biz_5", name: "گلخانه رویا" },
+      { id: "biz_6", name: "فست‌فود تیکا" },
+      { id: "biz_7", name: "کافه باقلوا نوشکا" }
+    ];
+
+    const CUSTOMERS = [
+      { id: "c1", name: "آریا فرهمند", league: "طلایی", birthday: "03-15" },
+      { id: "c2", name: "نیلوفر بهرامی", league: "نقره‌ای", birthday: "07-22" },
+      { id: "c3", name: "آرش نیک‌پی", league: "ویژه", birthday: "11-11" },
+      { id: "c4", name: "باران آذر", league: "برنزی", birthday: "01-05" }
+    ];
+
+    /* Calculation methods registry – add new methods here */
+    const CALC_METHODS = {
+      fixed:          { label: "امتیاز ثابت هر خرید", fields: ["points"] },
+      per_amount:     { label: "امتیاز بر اساس مبلغ", fields: ["amountPer", "points"] },
+      multiplier:     { label: "ضریب امتیاز", fields: ["multiplier"] },
+      percent_bonus:  { label: "درصد امتیاز بیشتر", fields: ["percent"] },
+      fixed_bonus:    { label: "امتیاز جایزه ثابت", fields: ["points"] },
+      category:       { label: "بر اساس دسته‌بندی محصول", fields: ["category", "multiplier"] }
+    };
+
+    /* Condition types registry – add new types here */
+    const COND_TYPES = {
+      amount_gte:   { label: "مبلغ خرید ≥", group: "purchase", hasValue: true, valueType: "number" },
+      amount_lte:   { label: "مبلغ خرید ≤", group: "purchase", hasValue: true, valueType: "number" },
+      amount_between:{ label: "مبلغ بین دو مقدار", group: "purchase", hasValue: true, valueType: "range" },
+      category:     { label: "دسته‌بندی محصول", group: "purchase", hasValue: true, valueType: "text" },
+      league:       { label: "لیگ مشتری", group: "customer", hasValue: true, valueType: "select", options: ["برنزی","نقره‌ای","طلایی","ویژه"] },
+      birthday:     { label: "روز تولد مشتری", group: "customer", hasValue: false },
+      first_purchase:{ label: "اولین خرید", group: "customer", hasValue: false },
+      day_of_week:  { label: "روز هفته", group: "time", hasValue: true, valueType: "select", options: ["شنبه","یکشنبه","دوشنبه","سه‌شنبه","چهارشنبه","پنجشنبه","جمعه"] },
+      time_range:   { label: "بازه ساعتی", group: "time", hasValue: true, valueType: "text" },
+      date_range:   { label: "بازه تاریخ", group: "time", hasValue: true, valueType: "text" }
+    };
+
+    const CONFLICT_POLICIES = {
+      all:          { label: "اعمال همه قوانین سازگار", desc: "تمام قوانین سازگار اعمال می‌شوند. ضرایب در هم ضرب و امتیازهای ثابت جمع می‌شوند." },
+      highest:      { label: "فقط بالاترین اولویت", desc: "فقط قانون با کم‌ترین شماره اولویت (بالاترین) اعمال می‌شود." },
+      per_category: { label: "بالاترین در هر دسته", desc: "در هر دسته (امتیازدهی / تشویقی / بین‌کسب‌وکار) فقط بالاترین اولویت اعمال می‌شود." },
+      exclusive:    { label: "انحصاری", desc: "قانون فقط اگر هیچ قانون دیگری مطابقت نداشته باشد اعمال می‌شود." }
+    };
+
+    let conflictPolicy = "all";
+
+    let rules = [
+      {
+        id: "r1", name: "امتیاز عادی کافه بیکری بیکرسو", description: "هر ۱۰۰ هزار تومان = ۱۰ امتیاز",
+        category: "points", method: "per_amount",
+        businessIds: ["biz_1"], amountPer: 100000, points: 10, multiplier: 1, percent: 0,
+        conditions: [], logic: "AND",
+        priority: 10, status: "active",
+        startDate: "1403/01/01", endDate: "",
+        lastEdit: "1403/08/01 10:00", trigger: "", maxUses: null,
+        sourceBiz: "", destBiz: "", benefitType: "", benefitValue: 0
+      },
+      {
+        id: "r2", name: "پروموشن پنجشنبه", description: "دو برابر شدن امتیاز در پنجشنبه‌ها",
+        category: "points", method: "multiplier",
+        businessIds: ["all"], amountPer: 0, points: 0, multiplier: 2, percent: 0,
+        conditions: [{ type: "day_of_week", value: "پنجشنبه" }], logic: "AND",
+        priority: 5, status: "active",
+        startDate: "1403/01/01", endDate: "",
+        lastEdit: "1403/07/15 14:30", trigger: "day_of_week", maxUses: null,
+        sourceBiz: "", destBiz: "", benefitType: "", benefitValue: 0
+      },
+      {
+        id: "r3", name: "جایزه طلایی زیتون", description: "۳۰۰ امتیاز اضافه برای اعضای طلایی",
+        category: "bonus", method: "fixed_bonus",
+        businessIds: ["biz_2"], amountPer: 0, points: 300, multiplier: 1, percent: 0,
+        conditions: [
+          { type: "league", value: "طلایی" },
+          { type: "amount_gte", value: "2000000" }
+        ], logic: "AND",
+        priority: 8, status: "active",
+        startDate: "1403/01/01", endDate: "",
+        lastEdit: "1403/06/20 09:00", trigger: "league", maxUses: null,
+        sourceBiz: "", destBiz: "", benefitType: "", benefitValue: 0
+      },
+      {
+        id: "r4", name: "امتیاز خرید طلافروشی دینور", description: "۲۰ امتیاز جایزه به ازای هر ۱ میلیون تومان",
+        category: "points", method: "per_amount",
+        businessIds: ["biz_3"], amountPer: 1000000, points: 20, multiplier: 1, percent: 0,
+        conditions: [], logic: "AND",
+        priority: 10, status: "active",
+        startDate: "1403/01/01", endDate: "",
+        lastEdit: "1403/05/10 11:00", trigger: "", maxUses: null,
+        sourceBiz: "", destBiz: "", benefitType: "", benefitValue: 0
+      },
+      {
+        id: "r5", name: "هدیه تولد", description: "۵۰۰ امتیاز ثابت در روز تولد",
+        category: "bonus", method: "fixed_bonus",
+        businessIds: ["all"], amountPer: 0, points: 500, multiplier: 1, percent: 0,
+        conditions: [{ type: "birthday", value: "" }], logic: "AND",
+        priority: 3, status: "active",
+        startDate: "1403/01/01", endDate: "",
+        lastEdit: "1403/04/01 08:00", trigger: "birthday", maxUses: 1,
+        sourceBiz: "", destBiz: "", benefitType: "", benefitValue: 0
+      },
+      {
+        id: "r6", name: "تخفیف طلایی کافه در زیتون", description: "اعضای طلایی کافه بیکری بیکرسو ۱۰٪ تخفیف در رستوران سورن",
+        category: "cross", method: "fixed",
+        businessIds: [], amountPer: 0, points: 0, multiplier: 1, percent: 0,
+        conditions: [{ type: "league", value: "طلایی" }], logic: "AND",
+        priority: 15, status: "active",
+        startDate: "1403/01/01", endDate: "1403/12/29",
+        lastEdit: "1403/08/05 16:00", trigger: "league", maxUses: 100,
+        sourceBiz: "biz_1", destBiz: "biz_2", benefitType: "discount_pct", benefitValue: 10
+      }
+    ];
+
+    let auditLog = [
+      { time: "1403/08/10 09:15", rule: "پروموشن پنجشنبه", action: "ویرایش", admin: "کوروش مهرگان", desc: "اولویت از ۷ به ۵ تغییر کرد" },
+      { time: "1403/08/08 14:00", rule: "هدیه تولد", action: "فعال‌سازی", admin: "کوروش مهرگان", desc: "قانون فعال شد" },
+      { time: "1403/08/05 16:00", rule: "تخفیف طلایی کافه در زیتون", action: "ایجاد", admin: "کوروش مهرگان", desc: "قانون بین‌کسب‌وکار جدید" }
+    ];
+
+    let editingId = null;
+    let modalConds = [];
+    let modalLogic = "AND";
+
+    /* ================================================================
+       UTILS
+       ================================================================ */
+    function fmt(n){ return Number(n).toLocaleString("fa-IR"); }
+    function bizName(id){
+      if(id==="all") return "همه";
+      const b=BUSINESSES.find(x=>x.id===id);
+      return b?b.name:id;
+    }
+    function bizNames(ids){
+      if(!ids||!ids.length) return "—";
+      if(ids.includes("all")) return "همه";
+      return ids.map(bizName).join("، ");
+    }
+    function methodLabel(m){ return CALC_METHODS[m]?CALC_METHODS[m].label:m; }
+    function catLabel(c){ return {points:"امتیازدهی",bonus:"تشویقی",cross:"بین‌کسب‌وکار"}[c]||c; }
+    function statusBadge(s){
+      if(s==="active") return '<span class="badge b-ok">فعال</span>';
+      if(s==="inactive") return '<span class="badge b-err">غیرفعال</span>';
+      if(s==="scheduled") return '<span class="badge b-warn">زمان‌بندی‌شده</span>';
+      return '<span class="badge b-muted">'+s+'</span>';
+    }
+    function uid(){ return "r_"+Date.now().toString(36)+Math.random().toString(36).slice(2,5); }
+    function toast(msg,type){
+      const c=document.getElementById("toasts");
+      const t=document.createElement("div");
+      t.className="toast "+(type||"info");
+      t.textContent=msg;
+      c.appendChild(t);
+      setTimeout(()=>t.remove(),3200);
+    }
+    function nowStr(){
+      const d=new Date();
+      return "1403/08/"+String(d.getDate()).padStart(2,"0")+" "+String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0");
+    }
+    function logAudit(ruleName,action,desc){
+      auditLog.unshift({ time:nowStr(), rule:ruleName, action, admin:"کوروش مهرگان", desc });
+    }
+    function dayNameFromDate(dateStr){
+      // approximate: use JS Date day
+      if(!dateStr) return "";
+      const d=new Date(dateStr);
+      const days=["یکشنبه","دوشنبه","سه‌شنبه","چهارشنبه","پنجشنبه","جمعه","شنبه"];
+      return days[d.getDay()];
+    }
+
+    /* ================================================================
+       NAVIGATION
+       ================================================================ */
+    const TITLES={
+      overview:"نمای کلی قوانین", points:"قوانین امتیازدهی", bonus:"قوانین تشویقی",
+      conditions:"شرایط و محدودیت‌ها", cross:"قوانین بین‌کسب‌وکار",
+      priority:"اولویت و تداخل", simulator:"شبیه‌ساز قوانین", history:"تاریخچه تغییرات"
+    };
+    function go(page){
+      document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+      document.querySelectorAll(".nav-item").forEach(n=>n.classList.remove("active"));
+      const el=document.getElementById("page-"+page);
+      if(el) el.classList.add("active");
+      const nav=document.querySelector('.nav-item[data-page="'+page+'"]');
+      if(nav) nav.classList.add("active");
+      document.getElementById("pageTitle").textContent=TITLES[page]||page;
+      closeSide();
+      if(page==="overview") renderOverview();
+      else if(page==="points") renderPoints();
+      else if(page==="bonus") renderBonus();
+      else if(page==="conditions") renderConditionsPage();
+      else if(page==="cross") renderCross();
+      else if(page==="priority") renderPriority();
+      else if(page==="simulator") renderSimulatorForm();
+      else if(page==="history") renderHistory();
+    }
+    function toggleSide(){
+      document.getElementById("sidebar").classList.toggle("open");
+      document.getElementById("sideOv").classList.toggle("show");
+    }
+    function closeSide(){
+      document.getElementById("sidebar").classList.remove("open");
+      document.getElementById("sideOv").classList.remove("show");
+    }
+
+    /* ================================================================
+       MODAL
+       ================================================================ */
+    function openModal(title,body,footer){
+      document.getElementById("modalTitle").textContent=title;
+      document.getElementById("modalBody").innerHTML=body;
+      document.getElementById("modalFooter").innerHTML=footer;
+      document.getElementById("modalOv").classList.add("open");
+    }
+    function closeModal(){
+      document.getElementById("modalOv").classList.remove("open");
+      editingId=null;
+    }
+    document.getElementById("modalOv").addEventListener("click",function(e){ if(e.target===this) closeModal(); });
+
+    function bizOpts(selected, multi){
+      let h='<option value="all"'+(selected&&selected.includes&&selected.includes("all")?" selected":"")+'>همه کسب‌وکارها</option>';
+      BUSINESSES.forEach(b=>{
+        const sel=selected&&(selected===b.id||(selected.includes&&selected.includes(b.id)));
+        h+='<option value="'+b.id+'"'+(sel?" selected":"")+'>'+b.name+'</option>';
+      });
+      return h;
+    }
+
+    /* ================================================================
+       RULE FORM (create / edit)
+       ================================================================ */
+    function openRuleModal(forceCat, id){
+      editingId=id||null;
+      const r=id?rules.find(x=>x.id===id):null;
+      const cat=forceCat||(r?r.category:"points");
+      modalConds=r?JSON.parse(JSON.stringify(r.conditions)):[];
+      modalLogic=r?r.logic:"AND";
+
+      let methodOpts="";
+      Object.keys(CALC_METHODS).forEach(k=>{
+        methodOpts+='<option value="'+k+'"'+(r&&r.method===k?" selected":"")+'>'+CALC_METHODS[k].label+'</option>';
+      });
+
+      const body=
+        '<div class="form-row">'+
+          '<div class="fg"><label>نام قانون *</label><input id="fName" value="'+(r?r.name:"")+'"></div>'+
+          '<div class="fg"><label>دسته</label><select id="fCat">'+
+            '<option value="points"'+(cat==="points"?" selected":"")+'>امتیازدهی</option>'+
+            '<option value="bonus"'+(cat==="bonus"?" selected":"")+'>تشویقی</option>'+
+            '<option value="cross"'+(cat==="cross"?" selected":"")+'>بین‌کسب‌وکار</option>'+
+          '</select></div>'+
+        '</div>'+
+        '<div class="fg" style="margin-bottom:10px"><label>توضیح</label><textarea id="fDesc">'+(r?r.description:"")+'</textarea></div>'+
+        '<div class="form-row">'+
+          '<div class="fg"><label>روش محاسبه</label><select id="fMethod">'+methodOpts+'</select></div>'+
+          '<div class="fg"><label>کسب‌وکار(ها)</label><select id="fBiz" multiple style="min-height:70px">'+bizOpts(r?r.businessIds:["all"])+'</select></div>'+
+        '</div>'+
+        '<div class="form-row">'+
+          '<div class="fg"><label>امتیاز / مقدار</label><input type="number" id="fPoints" value="'+(r?r.points:10)+'" min="0"></div>'+
+          '<div class="fg"><label>مبلغ پایه (برای روش مبلغی)</label><input type="number" id="fAmountPer" value="'+(r?r.amountPer:100000)+'" min="0"></div>'+
+          '<div class="fg"><label>ضریب</label><input type="number" id="fMult" value="'+(r?r.multiplier:1)+'" min="0" step="0.1"></div>'+
+          '<div class="fg"><label>درصد اضافه</label><input type="number" id="fPct" value="'+(r?r.percent:0)+'" min="0"></div>'+
+        '</div>'+
+        '<div class="form-row">'+
+          '<div class="fg"><label>اولویت (کم‌تر = بالاتر)</label><input type="number" id="fPrio" value="'+(r?r.priority:10)+'" min="1"></div>'+
+          '<div class="fg"><label>وضعیت</label><select id="fStatus">'+
+            '<option value="active"'+( !r||r.status==="active"?" selected":"")+'>فعال</option>'+
+            '<option value="inactive"'+(r&&r.status==="inactive"?" selected":"")+'>غیرفعال</option>'+
+            '<option value="scheduled"'+(r&&r.status==="scheduled"?" selected":"")+'>زمان‌بندی‌شده</option>'+
+          '</select></div>'+
+          '<div class="fg"><label>تاریخ شروع</label><input id="fStart" value="'+(r?r.startDate:"1403/01/01")+'"></div>'+
+          '<div class="fg"><label>تاریخ پایان</label><input id="fEnd" value="'+(r?r.endDate:"")+'" placeholder="خالی = بدون پایان"></div>'+
+        '</div>'+
+        // Cross fields
+        '<div class="form-row" id="crossFields">'+
+          '<div class="fg"><label>کسب‌وکار منبع</label><select id="fSrc">'+bizOpts(r?[r.sourceBiz]:[],false)+'</select></div>'+
+          '<div class="fg"><label>کسب‌وکار مقصد</label><select id="fDest">'+bizOpts(r?[r.destBiz]:[],false)+'</select></div>'+
+          '<div class="fg"><label>نوع مزیت</label><select id="fBenefit">'+
+            '<option value="discount_pct"'+(r&&r.benefitType==="discount_pct"?" selected":"")+'>تخفیف درصدی</option>'+
+            '<option value="discount_fixed"'+(r&&r.benefitType==="discount_fixed"?" selected":"")+'>تخفیف ثابت</option>'+
+            '<option value="bonus_points"'+(r&&r.benefitType==="bonus_points"?" selected":"")+'>امتیاز جایزه</option>'+
+            '<option value="free_reward"'+(r&&r.benefitType==="free_reward"?" selected":"")+'>پاداش رایگان</option>'+
+          '</select></div>'+
+          '<div class="fg"><label>مقدار مزیت</label><input type="number" id="fBenVal" value="'+(r?r.benefitValue:10)+'" min="0"></div>'+
+        '</div>'+
+        // Conditions
+        '<div style="margin:12px 0 6px;font-size:.88rem;color:var(--gold)">شرایط</div>'+
+        '<div style="margin-bottom:8px">'+
+          '<span class="logic-toggle">'+
+            '<button type="button" id="logicAND" class="'+(modalLogic==="AND"?"active":"")+'" onclick="setLogic(\'AND\')">و (AND)</button>'+
+            '<button type="button" id="logicOR" class="'+(modalLogic==="OR"?"active":"")+'" onclick="setLogic(\'OR\')">یا (OR)</button>'+
+          '</span>'+
+        '</div>'+
+        '<div id="condList"></div>'+
+        '<button class="btn btn-s btn-sm" type="button" onclick="addCondRow()" style="margin-top:6px">+ افزودن شرط</button>';
+
+      const footer=
+        '<button class="btn btn-p" onclick="saveRule()">ذخیره</button>'+
+        '<button class="btn btn-s" onclick="closeModal()">انصراف</button>';
+
+      openModal(id?"ویرایش قانون":"قانون جدید", body, footer);
+      renderCondRows();
+    }
+
+    function setLogic(l){
+      modalLogic=l;
+      document.getElementById("logicAND").classList.toggle("active",l==="AND");
+      document.getElementById("logicOR").classList.toggle("active",l==="OR");
+    }
+
+    function renderCondRows(){
+      const box=document.getElementById("condList");
+      if(!box) return;
+      if(!modalConds.length){ box.innerHTML='<div class="empty" style="padding:10px">شرطی تعریف نشده</div>'; return; }
+      box.innerHTML=modalConds.map((c,i)=>{
+        let typeOpts="";
+        Object.keys(COND_TYPES).forEach(k=>{
+          typeOpts+='<option value="'+k+'"'+(c.type===k?" selected":"")+'>'+COND_TYPES[k].label+'</option>';
+        });
+        return '<div class="cond-row">'+
+          '<div class="fg" style="flex:1.2"><label>نوع شرط</label><select onchange="updateCond('+i+',\'type\',this.value)">'+typeOpts+'</select></div>'+
+          '<div class="fg" style="flex:1"><label>مقدار</label><input value="'+(c.value||"")+'" onchange="updateCond('+i+',\'value\',this.value)" placeholder="مقدار"></div>'+
+          '<button class="btn btn-d btn-sm" onclick="removeCond('+i+')" style="margin-bottom:1px">حذف</button>'+
+        '</div>';
+      }).join("");
+    }
+
+    function addCondRow(){
+      modalConds.push({ type:"amount_gte", value:"" });
+      renderCondRows();
+    }
+    function removeCond(i){
+      modalConds.splice(i,1);
+      renderCondRows();
+    }
+    function updateCond(i,key,val){
+      if(modalConds[i]) modalConds[i][key]=val;
+    }
+
+    function saveRule(){
+      const name=document.getElementById("fName").value.trim();
+      if(!name){ toast("نام قانون الزامی است.","err"); return; }
+      const bizSel=document.getElementById("fBiz");
+      let businessIds=Array.from(bizSel.selectedOptions).map(o=>o.value);
+      if(!businessIds.length) businessIds=["all"];
+
+      const data={
+        name,
+        description: document.getElementById("fDesc").value.trim(),
+        category: document.getElementById("fCat").value,
+        method: document.getElementById("fMethod").value,
+        businessIds,
+        points: Number(document.getElementById("fPoints").value)||0,
+        amountPer: Number(document.getElementById("fAmountPer").value)||0,
+        multiplier: Number(document.getElementById("fMult").value)||1,
+        percent: Number(document.getElementById("fPct").value)||0,
+        conditions: JSON.parse(JSON.stringify(modalConds)),
+        logic: modalLogic,
+        priority: Number(document.getElementById("fPrio").value)||10,
+        status: document.getElementById("fStatus").value,
+        startDate: document.getElementById("fStart").value.trim()||"1403/01/01",
+        endDate: document.getElementById("fEnd").value.trim(),
+        lastEdit: nowStr(),
+        trigger: modalConds.length?modalConds[0].type:"",
+        maxUses: null,
+        sourceBiz: document.getElementById("fSrc").value,
+        destBiz: document.getElementById("fDest").value,
+        benefitType: document.getElementById("fBenefit").value,
+        benefitValue: Number(document.getElementById("fBenVal").value)||0
+      };
+
+      if(editingId){
+        const idx=rules.findIndex(x=>x.id===editingId);
+        if(idx>=0){ data.id=editingId; rules[idx]=data; }
+        logAudit(name,"ویرایش","قانون به‌روزرسانی شد");
+        toast("قانون به‌روزرسانی شد.","ok");
+      } else {
+        data.id=uid();
+        rules.push(data);
+        logAudit(name,"ایجاد","قانون جدید ایجاد شد");
+        toast("قانون جدید اضافه شد.","ok");
+      }
+      closeModal();
+      // refresh current page
+      const active=document.querySelector(".page.active");
+      if(active) go(active.id.replace("page-",""));
+    }
+
+    /* ================================================================
+       RULE ACTIONS
+       ================================================================ */
+    function toggleRule(id){
+      const r=rules.find(x=>x.id===id);
+      if(!r) return;
+      r.status=r.status==="active"?"inactive":"active";
+      r.lastEdit=nowStr();
+      logAudit(r.name, r.status==="active"?"فعال‌سازی":"غیرفعال‌سازی", "وضعیت تغییر کرد");
+      toast("وضعیت قانون تغییر کرد.","ok");
+      const active=document.querySelector(".page.active");
+      if(active) go(active.id.replace("page-",""));
+    }
+    function duplicateRule(id){
+      const r=rules.find(x=>x.id===id);
+      if(!r) return;
+      const copy=JSON.parse(JSON.stringify(r));
+      copy.id=uid();
+      copy.name=r.name+" (کپی)";
+      copy.status="inactive";
+      copy.lastEdit=nowStr();
+      rules.push(copy);
+      logAudit(copy.name,"ایجاد","کپی از «"+r.name+"»");
+      toast("قانون کپی شد.","ok");
+      const active=document.querySelector(".page.active");
+      if(active) go(active.id.replace("page-",""));
+    }
+    function deleteRule(id){
+      if(!confirm("آیا از حذف این قانون مطمئن هستید؟")) return;
+      const r=rules.find(x=>x.id===id);
+      if(!r) return;
+      logAudit(r.name,"حذف","قانون حذف شد");
+      rules=rules.filter(x=>x.id!==id);
+      toast("قانون حذف شد.","ok");
+      const active=document.querySelector(".page.active");
+      if(active) go(active.id.replace("page-",""));
+    }
+
+    /* ================================================================
+       RENDER: OVERVIEW
+       ================================================================ */
+    function renderOverview(){
+      const total=rules.length;
+      const active=rules.filter(r=>r.status==="active").length;
+      const inactive=rules.filter(r=>r.status==="inactive").length;
+      const scheduled=rules.filter(r=>r.status==="scheduled").length;
+      const bizWith=new Set();
+      rules.forEach(r=>r.businessIds.forEach(id=>{ if(id!=="all") bizWith.add(id); }));
+      if(rules.some(r=>r.businessIds.includes("all"))) BUSINESSES.forEach(b=>bizWith.add(b.id));
+
+      document.getElementById("ovStats").innerHTML=
+        '<div class="stat"><div class="lbl">کل قوانین</div><div class="val">'+fmt(total)+'</div></div>'+
+        '<div class="stat"><div class="lbl">فعال</div><div class="val g">'+fmt(active)+'</div></div>'+
+        '<div class="stat"><div class="lbl">غیرفعال</div><div class="val">'+fmt(inactive)+'</div></div>'+
+        '<div class="stat"><div class="lbl">زمان‌بندی‌شده</div><div class="val">'+fmt(scheduled)+'</div></div>'+
+        '<div class="stat"><div class="lbl">کسب‌وکارهای دارای قانون</div><div class="val">'+fmt(bizWith.size)+'</div></div>'+
+        '<div class="stat"><div class="lbl">امتیاز صادره (نمونه)</div><div class="val g">'+fmt(487200)+'</div></div>';
+
+      // populate biz filter once
+      const fb=document.getElementById("fBiz");
+      if(fb.options.length<=1){
+        BUSINESSES.forEach(b=>{
+          const o=document.createElement("option"); o.value=b.id; o.textContent=b.name; fb.appendChild(o);
+        });
+      }
+
+      const bizF=document.getElementById("fBiz").value;
+      const typeF=document.getElementById("fType").value;
+      const stF=document.getElementById("fStatus").value;
+      let list=rules.slice();
+      if(bizF) list=list.filter(r=>r.businessIds.includes(bizF)||r.businessIds.includes("all")||r.sourceBiz===bizF||r.destBiz===bizF);
+      if(typeF) list=list.filter(r=>r.category===typeF);
+      if(stF) list=list.filter(r=>r.status===stF);
+
+      document.getElementById("ovTable").innerHTML=list.map(r=>
+        '<tr>'+
+          '<td>'+r.name+'</td>'+
+          '<td>'+catLabel(r.category)+'</td>'+
+          '<td>'+(r.category==="cross"? bizName(r.sourceBiz)+" → "+bizName(r.destBiz) : bizNames(r.businessIds))+'</td>'+
+          '<td>'+statusBadge(r.status)+'</td>'+
+          '<td>'+r.startDate+'</td>'+
+          '<td>'+(r.endDate||"—")+'</td>'+
+          '<td>'+r.priority+'</td>'+
+          '<td>'+r.lastEdit+'</td>'+
+          '<td>'+
+            '<button class="btn btn-s btn-sm" onclick="openRuleModal(null,\''+r.id+'\')">ویرایش</button> '+
+            '<button class="btn btn-s btn-sm" onclick="toggleRule(\''+r.id+'\')">'+(r.status==="active"?"غیرفعال":"فعال")+'</button> '+
+            '<button class="btn btn-s btn-sm" onclick="duplicateRule(\''+r.id+'\')">کپی</button> '+
+            '<button class="btn btn-d btn-sm" onclick="deleteRule(\''+r.id+'\')">حذف</button>'+
+          '</td></tr>'
+      ).join("")||'<tr><td colspan="9" class="empty">قانونی یافت نشد</td></tr>';
+    }
+
+    /* ================================================================
+       RENDER: POINTS
+       ================================================================ */
+    function renderPoints(){
+      const list=rules.filter(r=>r.category==="points");
+      document.getElementById("pointsTable").innerHTML=list.map(r=>{
+        let val="";
+        if(r.method==="per_amount") val="هر "+fmt(r.amountPer)+" = "+fmt(r.points)+" امتیاز";
+        else if(r.method==="fixed") val=fmt(r.points)+" امتیاز ثابت";
+        else if(r.method==="multiplier") val="ضریب "+r.multiplier;
+        else if(r.method==="percent_bonus") val=r.percent+"٪ اضافه";
+        else if(r.method==="fixed_bonus") val=fmt(r.points)+" جایزه";
+        else val=methodLabel(r.method);
+        const conds=r.conditions.length? r.conditions.map(c=>COND_TYPES[c.type]?COND_TYPES[c.type].label:c.type).join("، ") : "—";
+        return '<tr>'+
+          '<td>'+r.name+'</td>'+
+          '<td>'+methodLabel(r.method)+'</td>'+
+          '<td>'+bizNames(r.businessIds)+'</td>'+
+          '<td>'+val+'</td>'+
+          '<td style="white-space:normal;max-width:180px">'+conds+'</td>'+
+          '<td>'+r.priority+'</td>'+
+          '<td>'+statusBadge(r.status)+'</td>'+
+          '<td>'+
+            '<button class="btn btn-s btn-sm" onclick="openRuleModal(\'points\',\''+r.id+'\')">ویرایش</button> '+
+            '<button class="btn btn-s btn-sm" onclick="toggleRule(\''+r.id+'\')">'+(r.status==="active"?"غیرفعال":"فعال")+'</button> '+
+            '<button class="btn btn-d btn-sm" onclick="deleteRule(\''+r.id+'\')">حذف</button>'+
+          '</td></tr>';
+      }).join("")||'<tr><td colspan="8" class="empty">قانون امتیازدهی‌ای وجود ندارد</td></tr>';
+
+      document.getElementById("methodsList").innerHTML=Object.keys(CALC_METHODS).map(k=>
+        '<div style="padding:4px 0"><span class="tag">'+k+'</span> '+CALC_METHODS[k].label+'</div>'
+      ).join("");
+    }
+
+    /* ================================================================
+       RENDER: BONUS
+       ================================================================ */
+    function renderBonus(){
+      const list=rules.filter(r=>r.category==="bonus");
+      document.getElementById("bonusTable").innerHTML=list.map(r=>{
+        const trigger=r.trigger&&COND_TYPES[r.trigger]?COND_TYPES[r.trigger].label:(r.trigger||"—");
+        const reward=r.method==="fixed_bonus"?fmt(r.points)+" امتیاز":methodLabel(r.method);
+        return '<tr>'+
+          '<td>'+r.name+'</td>'+
+          '<td>'+trigger+'</td>'+
+          '<td>'+bizNames(r.businessIds)+'</td>'+
+          '<td>'+reward+'</td>'+
+          '<td>'+(r.maxUses!=null?fmt(r.maxUses):"نامحدود")+'</td>'+
+          '<td>'+statusBadge(r.status)+'</td>'+
+          '<td>'+
+            '<button class="btn btn-s btn-sm" onclick="openRuleModal(\'bonus\',\''+r.id+'\')">ویرایش</button> '+
+            '<button class="btn btn-s btn-sm" onclick="toggleRule(\''+r.id+'\')">'+(r.status==="active"?"غیرفعال":"فعال")+'</button> '+
+            '<button class="btn btn-d btn-sm" onclick="deleteRule(\''+r.id+'\')">حذف</button>'+
+          '</td></tr>';
+      }).join("")||'<tr><td colspan="7" class="empty">قانون تشویقی‌ای وجود ندارد</td></tr>';
+    }
+
+    /* ================================================================
+       RENDER: CONDITIONS PAGE
+       ================================================================ */
+    function renderConditionsPage(){
+      const groups={purchase:"شرایط خرید",customer:"شرایط مشتری",time:"شرایط زمانی"};
+      let html="";
+      Object.keys(groups).forEach(g=>{
+        html+='<div><div style="color:var(--gold);font-weight:600;margin-bottom:6px">'+groups[g]+'</div>';
+        Object.keys(COND_TYPES).filter(k=>COND_TYPES[k].group===g).forEach(k=>{
+          html+='<div style="padding:3px 0;font-size:.85rem;color:var(--text2)"><span class="tag">'+k+'</span> '+COND_TYPES[k].label+'</div>';
+        });
+        html+='</div>';
+      });
+      document.getElementById("condTypesList").innerHTML=html;
+
+      document.getElementById("condExample").innerHTML=
+        '<strong>مثال:</strong> قانون «جایزه طلایی زیتون»<br>'+
+        'IF: کسب‌وکار = رستوران سورن <span class="tag">AND</span> مبلغ ≥ ۲,۰۰۰,۰۰۰ <span class="tag">AND</span> لیگ = طلایی<br>'+
+        'THEN: ۳۰۰ امتیاز جایزه ثابت<br><br>'+
+        'منطق ترکیب شرایط (AND / OR) در فرم ایجاد قانون قابل تنظیم است.';
+    }
+
+    /* ================================================================
+       RENDER: CROSS
+       ================================================================ */
+    function renderCross(){
+      const list=rules.filter(r=>r.category==="cross");
+      const benLabel={discount_pct:"تخفیف ٪",discount_fixed:"تخفیف ثابت",bonus_points:"امتیاز جایزه",free_reward:"پاداش رایگان"};
+      document.getElementById("crossTable").innerHTML=list.map(r=>{
+        const cond=r.conditions.length? r.conditions.map(c=>(COND_TYPES[c.type]?COND_TYPES[c.type].label:"")+ (c.value?": "+c.value:"")).join("، ") : "—";
+        return '<tr>'+
+          '<td>'+r.name+'</td>'+
+          '<td>'+bizName(r.sourceBiz)+'</td>'+
+          '<td style="white-space:normal;max-width:160px">'+cond+'</td>'+
+          '<td>'+bizName(r.destBiz)+'</td>'+
+          '<td>'+(benLabel[r.benefitType]||r.benefitType)+'</td>'+
+          '<td>'+fmt(r.benefitValue)+(r.benefitType==="discount_pct"?"٪":"")+'</td>'+
+          '<td>'+statusBadge(r.status)+'</td>'+
+          '<td>'+
+            '<button class="btn btn-s btn-sm" onclick="openRuleModal(\'cross\',\''+r.id+'\')">ویرایش</button> '+
+            '<button class="btn btn-s btn-sm" onclick="toggleRule(\''+r.id+'\')">'+(r.status==="active"?"غیرفعال":"فعال")+'</button> '+
+            '<button class="btn btn-d btn-sm" onclick="deleteRule(\''+r.id+'\')">حذف</button>'+
+          '</td></tr>';
+      }).join("")||'<tr><td colspan="8" class="empty">قانون بین‌کسب‌وکاری وجود ندارد</td></tr>';
+    }
+
+    /* ================================================================
+       RENDER: PRIORITY
+       ================================================================ */
+    function renderPriority(){
+      document.getElementById("conflictPolicy").value=conflictPolicy;
+      document.getElementById("policyExplain").textContent=CONFLICT_POLICIES[conflictPolicy].desc;
+
+      const active=rules.filter(r=>r.status==="active").slice().sort((a,b)=>a.priority-b.priority);
+      document.getElementById("prioList").innerHTML=active.map(r=>
+        '<div class="prio-item">'+
+          '<span class="prio-num">'+r.priority+'</span>'+
+          '<div style="flex:1"><strong>'+r.name+'</strong> <span class="tag">'+catLabel(r.category)+'</span>'+
+          '<div style="font-size:.78rem;color:var(--muted)">'+methodLabel(r.method)+' — '+bizNames(r.businessIds||[])+'</div></div>'+
+          '<button class="btn btn-s btn-sm" onclick="openRuleModal(null,\''+r.id+'\')">تغییر اولویت</button>'+
+        '</div>'
+      ).join("")||'<div class="empty">قانون فعالی نیست</div>';
+
+      document.getElementById("conflictExample").innerHTML=
+        '<strong>سناریو:</strong> خرید ۲,۵۰۰,۰۰۰ تومانی در کافه بیکری بیکرسو در روز پنجشنبه توسط عضو طلایی<br><br>'+
+        '• قانون A (اولویت ۱۰): هر ۱۰۰ هزار = ۱۰ امتیاز ← پایه = ۲۵۰ امتیاز<br>'+
+        '• قانون B (اولویت ۵): ضریب ۲× در پنجشنبه<br>'+
+        '• قانون C (اولویت ۸): ۳۰۰ امتیاز جایزه برای طلایی (فقط زیتون — اعمال نمی‌شود)<br><br>'+
+        '<strong>با سیاست «اعمال همه»:</strong> ۲۵۰ × ۲ = ۵۰۰ امتیاز<br>'+
+        '<strong>با سیاست «فقط بالاترین»:</strong> فقط قانون B (ضریب) — نیاز به امتیاز پایه از قانون دیگر یا ۰<br>'+
+        'برای مشاهده نتیجه دقیق از شبیه‌ساز استفاده کنید.';
+    }
+    function onPolicyChange(){
+      conflictPolicy=document.getElementById("conflictPolicy").value;
+      document.getElementById("policyExplain").textContent=CONFLICT_POLICIES[conflictPolicy].desc;
+      toast("سیاست تداخل به‌روز شد.","info");
+    }
+
+    /* ================================================================
+       RULE EVALUATION ENGINE
+       ================================================================ */
+    function evalCondition(cond, ctx){
+      const t=cond.type;
+      const v=cond.value;
+      if(t==="amount_gte") return ctx.amount >= Number(v);
+      if(t==="amount_lte") return ctx.amount <= Number(v);
+      if(t==="amount_between"){
+        const parts=String(v).split("-").map(Number);
+        if(parts.length===2) return ctx.amount>=parts[0] && ctx.amount<=parts[1];
+        return false;
+      }
+      if(t==="category") return (ctx.category||"").toLowerCase()===(v||"").toLowerCase();
+      if(t==="league") return ctx.league===v;
+      if(t==="birthday"){
+        // match month-day of selected date with customer birthday
+        if(!ctx.birthday||!ctx.date) return false;
+        const md=ctx.date.slice(5); // MM-DD
+        return md===ctx.birthday;
+      }
+      if(t==="first_purchase") return !!ctx.firstPurchase;
+      if(t==="day_of_week") return ctx.dayOfWeek===v;
+      if(t==="time_range"){
+        // simple: value like "09:00-17:00"
+        const parts=String(v).split("-");
+        if(parts.length===2 && ctx.time) return ctx.time>=parts[0].trim() && ctx.time<=parts[1].trim();
+        return false;
+      }
+      if(t==="date_range") return true; // simplified for prototype
+      return true;
+    }
+
+    function ruleApplies(rule, ctx){
+      // status
+      if(rule.status!=="active") return { ok:false, reason:"قانون غیرفعال یا زمان‌بندی‌شده است" };
+      // business
+      if(rule.category!=="cross"){
+        const bizOk=rule.businessIds.includes("all")||rule.businessIds.includes(ctx.businessId);
+        if(!bizOk) return { ok:false, reason:"کسب‌وکار مطابقت ندارد" };
+      } else {
+        // cross rules checked differently (source context)
+        if(rule.sourceBiz && rule.sourceBiz!==ctx.businessId && rule.sourceBiz!=="all")
+          return { ok:false, reason:"کسب‌وکار منبع مطابقت ندارد" };
+      }
+      // conditions
+      if(rule.conditions && rule.conditions.length){
+        const results=rule.conditions.map(c=>({ cond:c, pass:evalCondition(c,ctx) }));
+        const pass=rule.logic==="OR"
+          ? results.some(x=>x.pass)
+          : results.every(x=>x.pass);
+        if(!pass){
+          const failed=results.filter(x=>!x.pass).map(x=> (COND_TYPES[x.cond.type]?COND_TYPES[x.cond.type].label:x.cond.type)+" = "+(x.cond.value||"✓"));
+          return { ok:false, reason:"شرایط برقرار نیست: "+failed.join("؛ ") };
+        }
+      }
+      return { ok:true, reason:"" };
+    }
+
+    function calcRulePoints(rule, basePoints, amount){
+      // returns { type, value, pointsDelta, multiplier }
+      if(rule.method==="per_amount" && rule.amountPer>0){
+        const pts=Math.floor(amount/rule.amountPer)*rule.points;
+        return { type:"base", points:pts, mult:1 };
+      }
+      if(rule.method==="fixed"){
+        return { type:"base", points:rule.points, mult:1 };
+      }
+      if(rule.method==="multiplier"){
+        return { type:"mult", points:0, mult:rule.multiplier };
+      }
+      if(rule.method==="percent_bonus"){
+        return { type:"mult", points:0, mult:1+(rule.percent/100) };
+      }
+      if(rule.method==="fixed_bonus"){
+        return { type:"bonus", points:rule.points, mult:1 };
+      }
+      if(rule.method==="category"){
+        return { type:"mult", points:0, mult:rule.multiplier||1 };
+      }
+      return { type:"base", points:0, mult:1 };
+    }
+
+    function evaluateRules(ctx){
+      // Get matching rules sorted by priority
+      const results=[];
+      rules.forEach(rule=>{
+        if(rule.category==="cross"){
+          // Cross rules don't award points in this simulator; noted separately
+          const check=ruleApplies(rule,ctx);
+          results.push({ rule, check, calc:null, isCross:true });
+          return;
+        }
+        const check=ruleApplies(rule,ctx);
+        let calc=null;
+        if(check.ok) calc=calcRulePoints(rule,0,ctx.amount);
+        results.push({ rule, check, calc, isCross:false });
+      });
+
+      // Apply conflict policy
+      const matched=results.filter(x=>x.check.ok && !x.isCross);
+      let applied=[];
+      let ignored=[];
+
+      if(conflictPolicy==="all"){
+        applied=matched;
+      } else if(conflictPolicy==="highest"){
+        if(matched.length){
+          const sorted=matched.slice().sort((a,b)=>a.rule.priority-b.rule.priority);
+          applied=[sorted[0]];
+          ignored=sorted.slice(1).map(x=>({ ...x, ignoreReason:"سیاست: فقط بالاترین اولویت" }));
+        }
+      } else if(conflictPolicy==="per_category"){
+        const byCat={};
+        matched.forEach(m=>{
+          const c=m.rule.category;
+          if(!byCat[c] || m.rule.priority < byCat[c].rule.priority) byCat[c]=m;
+        });
+        applied=Object.values(byCat);
+        ignored=matched.filter(m=>!applied.includes(m)).map(x=>({ ...x, ignoreReason:"سیاست: بالاترین در هر دسته" }));
+      } else if(conflictPolicy==="exclusive"){
+        if(matched.length===1) applied=matched;
+        else {
+          ignored=matched.map(x=>({ ...x, ignoreReason:"سیاست انحصاری: بیش از یک قانون مطابقت دارد" }));
+        }
+      }
+
+      // Calculate final points
+      let base=0, bonus=0, mult=1;
+      applied.forEach(a=>{
+        if(!a.calc) return;
+        if(a.calc.type==="base") base+=a.calc.points;
+        if(a.calc.type==="bonus") bonus+=a.calc.points;
+        if(a.calc.type==="mult") mult*=a.calc.mult;
+      });
+      // If no base from rules, optionally derive a default? For realism keep 0 if none.
+      const final=Math.floor(base*mult)+bonus;
+
+      return {
+        all: results,
+        applied,
+        ignored,
+        rejected: results.filter(x=>!x.check.ok && !x.isCross),
+        crossMatched: results.filter(x=>x.isCross && x.check.ok),
+        base, bonus, mult, final
+      };
+    }
+
+    /* ================================================================
+       SIMULATOR
+       ================================================================ */
+    function renderSimulatorForm(){
+      const cs=document.getElementById("simCust");
+      cs.innerHTML=CUSTOMERS.map(c=>'<option value="'+c.id+'">'+c.name+' ('+c.league+')</option>').join("");
+      const bs=document.getElementById("simBiz");
+      bs.innerHTML=BUSINESSES.map(b=>'<option value="'+b.id+'">'+b.name+'</option>').join("");
+      // default date = today-ish
+      const d=new Date();
+      document.getElementById("simDate").value=d.toISOString().slice(0,10);
+    }
+
+    function loadScenario(){
+      const s=document.getElementById("simScenario").value;
+      if(s==="1"){
+        document.getElementById("simBiz").value="biz_1";
+        document.getElementById("simAmount").value="250000";
+        document.getElementById("simLeague").value="برنزی";
+        // set a non-Thursday
+        document.getElementById("simDate").value="2026-11-09"; // Monday-ish
+      } else if(s==="2"){
+        document.getElementById("simBiz").value="biz_1";
+        document.getElementById("simAmount").value="2500000";
+        document.getElementById("simLeague").value="طلایی";
+        // Thursday
+        document.getElementById("simDate").value="2026-11-12"; // Thursday
+      } else if(s==="3"){
+        document.getElementById("simCust").value="c1";
+        document.getElementById("simBiz").value="biz_1";
+        document.getElementById("simAmount").value="500000";
+        document.getElementById("simLeague").value="طلایی";
+        // birthday of آریا = 03-15
+        document.getElementById("simDate").value="2026-03-15";
+      }
+    }
+
+    function runSimulation(){
+      const custId=document.getElementById("simCust").value;
+      const cust=CUSTOMERS.find(c=>c.id===custId)||CUSTOMERS[0];
+      const bizId=document.getElementById("simBiz").value;
+      const amount=Number(document.getElementById("simAmount").value)||0;
+      const date=document.getElementById("simDate").value;
+      const time=document.getElementById("simTime").value;
+      const league=document.getElementById("simLeague").value;
+      const category=document.getElementById("simCategory").value.trim();
+      const dayOfWeek=dayNameFromDate(date);
+
+      const ctx={
+        customerId: cust.id,
+        customerName: cust.name,
+        businessId: bizId,
+        amount,
+        date,
+        time,
+        dayOfWeek,
+        league,
+        category,
+        birthday: cust.birthday,
+        firstPurchase: false
+      };
+
+      const result=evaluateRules(ctx);
+
+      let html='<div class="sim-result">';
+      html+='<h4>نتیجه شبیه‌سازی</h4>';
+      html+='<div class="sim-line"><strong>ورودی:</strong> '+cust.name+' | '+bizName(bizId)+' | '+fmt(amount)+' تومان | '+date+' '+time+' | '+dayOfWeek+' | لیگ '+league+'</div>';
+      html+='<div class="sim-line"><strong>سیاست تداخل:</strong> '+CONFLICT_POLICIES[conflictPolicy].label+'</div>';
+
+      html+='<h4 style="margin-top:14px">قوانین منطبق</h4>';
+      if(!result.applied.length) html+='<div class="sim-line sim-reject">هیچ قانون امتیازی منطبق نشد.</div>';
+      result.applied.forEach(a=>{
+        const c=a.calc;
+        let detail="";
+        if(c.type==="base") detail="امتیاز پایه: "+fmt(c.points);
+        else if(c.type==="bonus") detail="جایزه: +"+fmt(c.points);
+        else if(c.type==="mult") detail="ضریب: ×"+c.mult;
+        html+='<div class="sim-line sim-match">✓ '+a.rule.name+' <span class="tag">اولویت '+a.rule.priority+'</span> — '+detail+'</div>';
+      });
+
+      if(result.ignored.length){
+        html+='<h4 style="margin-top:14px">نادیده گرفته‌شده به‌دلیل تداخل</h4>';
+        result.ignored.forEach(a=>{
+          html+='<div class="sim-line sim-reject">✗ '+a.rule.name+' — '+(a.ignoreReason||"")+'</div>';
+        });
+      }
+
+      html+='<h4 style="margin-top:14px">قوانین ردشده</h4>';
+      if(!result.rejected.length) html+='<div class="sim-line">—</div>';
+      result.rejected.forEach(a=>{
+        html+='<div class="sim-line sim-reject">✗ '+a.rule.name+' — '+a.check.reason+'</div>';
+      });
+
+      if(result.crossMatched.length){
+        html+='<h4 style="margin-top:14px">قوانین بین‌کسب‌وکار منطبق (مزیت، نه امتیاز مستقیم)</h4>';
+        result.crossMatched.forEach(a=>{
+          html+='<div class="sim-line sim-match">✓ '+a.rule.name+' → '+bizName(a.rule.destBiz)+' | '+a.rule.benefitType+' = '+a.rule.benefitValue+'</div>';
+        });
+      }
+
+      html+='<div class="sim-line" style="margin-top:12px"><strong>امتیاز پایه:</strong> '+fmt(result.base)+
+        ' | <strong>ضریب کل:</strong> ×'+result.mult+
+        ' | <strong>جایزه:</strong> +'+fmt(result.bonus)+'</div>';
+      html+='<div class="sim-final">امتیاز نهایی: '+fmt(result.final)+'</div>';
+      html+='<div class="explain">فرمول: floor(پایه × ضریب) + جایزه = floor('+result.base+' × '+result.mult+') + '+result.bonus+' = '+result.final+'</div>';
+      html+='</div>';
+
+      document.getElementById("simOutput").innerHTML=html;
+    }
+
+    /* ================================================================
+       RENDER: HISTORY
+       ================================================================ */
+    function renderHistory(){
+      document.getElementById("histTable").innerHTML=auditLog.map(h=>
+        '<tr>'+
+          '<td>'+h.time+'</td>'+
+          '<td>'+h.rule+'</td>'+
+          '<td><span class="badge b-info">'+h.action+'</span></td>'+
+          '<td>'+h.admin+'</td>'+
+          '<td style="white-space:normal">'+h.desc+'</td>'+
+        '</tr>'
+      ).join("")||'<tr><td colspan="5" class="empty">تاریخچه‌ای ثبت نشده</td></tr>';
+    }
+
+    /* ================================================================
+       INIT
+       ================================================================ */
+    document.addEventListener("DOMContentLoaded",function(){
+      renderOverview();
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,14 @@
+{
+  "name": "radvan-hamrah-loyalty-mvp",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "start": "node server/index.js",
+    "dev": "node --watch server/index.js",
+    "test": "node test-hamrah-core.mjs && node test-customer-identity.mjs"
+  },
+  "dependencies": {
+    "better-sqlite3": "^12.10.1",
+    "express": "^4.21.2"
+  }
+}
